@@ -4,17 +4,39 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Main {
 
+    final static String url = "jdbc:mysql://localhost:3306/";
+    final static String username = "tpdia";
+    final static String password = "tpdia";
+    final static String databaseName = "tpdiadb";
+    final static String testTableName = "testTable";
+
     public static void main(String[] args) {
 
-        String url = "jdbc:mysql://localhost:3306/";
-        String username = "tpdia";
-        String password = "tpdia";
-        String databaseName = "tpdiadb";
-        String testTableName = "testTable";
+        //initializeDatabase();
 
+        Runnable task = () -> {
+          String threadName = Thread.currentThread().getName();
+            System.out.println("Hi " + threadName);
+        };
+        task.run();
+
+        Thread thread = new Thread(task);
+        thread.start();
+
+
+        ExecutorService executor = Executors.newFixedThreadPool(3);
+        executor.submit(() -> {
+            String threadName = Thread.currentThread().getName();
+            System.out.println("Hello " + threadName);
+        });
+    }
+
+    private static void initializeDatabase() {
         System.out.println("Connecting database...");
 
         try {
