@@ -1,4 +1,6 @@
-package pl.polsl.tpdia;
+package main.java.pl.polsl.tpdia.console;
+
+import main.java.pl.polsl.tpdia.dao.DatabaseAccess;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
