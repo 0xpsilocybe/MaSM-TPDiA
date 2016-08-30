@@ -1,4 +1,4 @@
-package main.java.pl.polsl.tpdia.models;
+package pl.polsl.tpdia.models;
 
 import java.util.Date;
 
