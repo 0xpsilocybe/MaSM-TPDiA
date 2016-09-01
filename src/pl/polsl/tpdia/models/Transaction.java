@@ -1,18 +1,19 @@
 package pl.polsl.tpdia.models;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.sql.Date;
 
 /**
- * Created by Psilo on 29.08.2016.
+ * Transaction database model
+ * @author Psilo
  */
 public class Transaction implements java.io.Serializable {
-    int id;
-    int accountFromId;
-    int accountToId;
-    BigDecimal amount;
-    Date postingDate;
-    String type;
+    private int id;
+    private int accountFromId;
+    private int accountToId;
+    private BigDecimal amount;
+    private Date postingDate;
+    private String type;
 
     public int getId() {
         return id;

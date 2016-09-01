@@ -3,14 +3,15 @@ package pl.polsl.tpdia.models;
 import java.math.BigDecimal;
 
 /**
- * Created by Psilo on 29.08.2016.
+ * Account database model
+ * @author Psilo
  */
 public class Account implements java.io.Serializable {
-    int id;
-    int accountHolderId;
-    BigDecimal balance;
-    String currency;
-    String type;
+    private int id;
+    private int accountHolderId;
+    private BigDecimal balance;
+    private String currency;
+    private String type;
 
     public int getId() {
         return id;

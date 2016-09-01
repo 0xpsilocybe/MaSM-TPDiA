@@ -25,7 +25,8 @@ public class MySQLDatabase {
      * Initialize pooled datasource with C3P0
      */
     static {
-        if (createDatabase()) {
+        boolean databaseCreated = createDatabase();
+        if (databaseCreated) {
             ComboPooledDataSource cpds = new ComboPooledDataSource();
             try {
                 cpds.setDriverClass(driver);
@@ -68,16 +69,6 @@ public class MySQLDatabase {
     }
 
     /**
-     * Initializes MySQL DAO and database
-     */
-    public MySQLDatabase() {
-        this.accounts = new Accounts();
-        this.transactions = new Transactions();
-        this.accountHolders = new AccountHolders();
-        this.createTables();
-    }
-
-    /**
      * Get database connection from the pool
      * @return Pooled connection to MySQL database
      * @throws SQLException when connection cannot be established
@@ -105,6 +96,26 @@ public class MySQLDatabase {
         return statement;
     }
 
+    private static void dropDatabaseIfExistsBatch(Statement statement) throws SQLException {
+        String dropSQL = String.format("DROP DATABASE IF EXISTS %1$s", databaseName);
+        statement.addBatch(dropSQL);
+    }
+
+    private static void createDatabaseBatch(Statement statement) throws SQLException {
+        String createSQL = String.format("CREATE DATABASE %1$s", databaseName);
+        statement.addBatch(createSQL);
+    }
+
+    /**
+     * Initializes MySQL DAO and database
+     */
+    public MySQLDatabase() {
+        this.accounts = new Accounts();
+        this.transactions = new Transactions();
+        this.accountHolders = new AccountHolders();
+        this.createTables();
+    }
+
     /**
      * Restores basic database schema
      * @return Operation success
@@ -123,13 +134,15 @@ public class MySQLDatabase {
         }
     }
 
-    private static void dropDatabaseIfExistsBatch(Statement statement) throws SQLException {
-        String dropSQL = String.format("DROP DATABASE IF EXISTS %1$s", databaseName);
-        statement.addBatch(dropSQL);
+    public AccountsDAO getAccounts() {
+        return this.accounts;
     }
 
-    private static void createDatabaseBatch(Statement statement) throws SQLException {
-        String createSQL = String.format("CREATE DATABASE %1$s", databaseName);
-        statement.addBatch(createSQL);
+    public AccountHoldersDAO getAccountHolders() {
+        return this.accountHolders;
+    }
+
+    public TransactionsDAO getTransactions() {
+        return this.transactions;
     }
 }

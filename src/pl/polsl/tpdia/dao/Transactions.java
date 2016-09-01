@@ -5,25 +5,26 @@ import pl.polsl.tpdia.models.Transaction;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Collection;
+import java.util.List;
 
 /**
- * Created by Psilo on 29.08.2016.
+ * MySQL implementation of TransactionsDAO
+ * @author  Psilo
  */
-public class Transactions implements TransactionsDAO {
+class Transactions implements TransactionsDAO {
     private final String TableName = "Transactions";
 
     @Override
     public boolean create(Connection connection) throws SQLException {
         Statement statement = connection.createStatement();
         String createSQL = String.format(
-            "CREATE TABLE %1$s (" +
-                "id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY, " +
-                "accountFrom INT(6) NOT NULL, " +
-                "accountTo INT(6) NOT NULL, " +
-                "amount NUMERIC(15,2) NOT NULL, " +
-                "postingDate TIMESTAMP, " +
-                "type VARCHAR(10)" +
+            "CREATE TABLE %1$s (\n" +
+                "id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,\n" +
+                "accountFrom INT(6) NOT NULL,\n" +
+                "accountTo INT(6) NOT NULL,\n" +
+                "amount NUMERIC(15,2) NOT NULL,\n" +
+                "postingDate TIMESTAMP,\n" +
+                "type VARCHAR(10)\n" +
             ")",
             TableName);
         return statement.execute(createSQL);
@@ -35,13 +36,13 @@ public class Transactions implements TransactionsDAO {
     }
 
     @Override
-    public Collection<Transaction> selectAll(Connection connection) {
+    public List<Transaction> selectAll(Connection connection) {
         return null;
     }
 
     @Override
-    public boolean insert(Connection connection, Transaction item) {
-        return false;
+    public int insert(Connection connection, Transaction item) {
+        return -1;
     }
 
     @Override

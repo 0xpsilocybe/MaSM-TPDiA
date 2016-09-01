@@ -2,16 +2,16 @@ package pl.polsl.tpdia.dao;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Collection;
+import java.util.List;
 
 /**
  * Created by Psilo on 29.08.2016.
  */
 public interface Table<T> {
-    public boolean create(Connection connection) throws SQLException;
-    public T selectById(Connection connection, int id);
-    public Collection<T> selectAll(Connection connection);
-    public boolean insert(Connection connection, T item);
-    public boolean update(Connection connection, T item);
-    public boolean delete(Connection connection, int id);
+    boolean create(Connection connection) throws SQLException;
+    T selectById(Connection connection, int id) throws SQLException;
+    List<T> selectAll(Connection connection) throws SQLException;
+    int insert(Connection connection, T item) throws SQLException;
+    boolean update(Connection connection, T item) throws SQLException;
+    boolean delete(Connection connection, int id) throws SQLException;
 }

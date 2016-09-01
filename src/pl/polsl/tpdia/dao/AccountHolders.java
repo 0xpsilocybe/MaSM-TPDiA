@@ -2,82 +2,114 @@ package pl.polsl.tpdia.dao;
 
 import pl.polsl.tpdia.models.AccountHolder;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Collection;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Created by Psilo on 29.08.2016.
+ * MySQL implementation of AccountHoldersDAO
+ * @author  Psilo
  */
-public class AccountHolders implements AccountHoldersDAO {
+class AccountHolders implements AccountHoldersDAO {
     private final String TableName = "AccountHolders";
 
     @Override
     public boolean create(Connection connection) throws SQLException {
-        Statement statement = connection.createStatement();
         String createSQL = String.format(
-            "CREATE TABLE `%1$s` (" +
-                "`id` INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY, " +
-                "`firstName` VARCHAR(30) NOT NULL, " +
-                "`lastName` VARCHAR(40) NOT NULL, " +
-                "`email` VARCHAR(50), " +
-                "`birthDate` TIMESTAMP, " +
-                "`registrationDate` TIMESTAMP" +
+            "CREATE TABLE `%1$s` (\n" +
+                "`Id` INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,\n" +
+                "`FirstName` VARCHAR(30) NOT NULL,\n" +
+                "`LastName` VARCHAR(40) NOT NULL,\n" +
+                "`Email` VARCHAR(50),\n" +
+                "`BirthDate` TIMESTAMP,\n" +
+                "`RegistrationDate` TIMESTAMP\n" +
             ")",
             TableName);
+        Statement statement = connection.createStatement();
         return statement.execute(createSQL);
     }
 
     @Override
-    public AccountHolder selectById(Connection connection, int id) {
+    public AccountHolder selectById(Connection connection, int id) throws SQLException {
         String selectSQL = String.format(
-            "SELECT id, firstName, lastName, email, birthDate, registrationDate " +
-            "FROM %1$s " +
-            "WHERE %2$s",
-            TableName, id);
-
+            "SELECT Id, FirstName, LastName, Email, BirthDate, RegistrationDate\n" +
+            "FROM %1$s\n" +
+            "WHERE Id = ?",
+            TableName);
+        PreparedStatement preparedStatement = MySQLDatabase.prepareStatement(connection, selectSQL, (ps) -> ps.setInt(1, id));
+        ResultSet result = preparedStatement.executeQuery(selectSQL);
+        if(result.next()) {
+            return read(result);
+        }
         return null;
     }
 
     @Override
-    public Collection<AccountHolder> selectAll(Connection connection) {
+    public List<AccountHolder> selectAll(Connection connection) throws SQLException {
         String selectSQL = String.format(
-            "SELECT id, firstName, lastName, email, birthDate, registrationDate " +
+            "SELECT Id, FirstName, LastName, Email, BirthDate, RegistrationDate\n" +
             "FROM %1$s",
             TableName);
+        Statement statement = connection.createStatement();
+        ResultSet result = statement.executeQuery(selectSQL);
+        List<AccountHolder> accountHolders = new ArrayList<>();
+        while(result.next()) {
+            AccountHolder next = read(result);
+            accountHolders.add(next);
+        }
+        return accountHolders;
+    }
 
-        return null;
+    private AccountHolder read(ResultSet result) throws SQLException {
+        AccountHolder accountHolder = new AccountHolder();
+        accountHolder.setId(result.getInt("Id"));
+        accountHolder.setFirstName(result.getString("FirstName"));
+        accountHolder.setLastName(result.getString("LastName"));
+        accountHolder.setEmail(result.getString("Email"));
+        accountHolder.setBirthDate(result.getDate("BirthDate"));
+        accountHolder.setRegistrationDate(result.getDate("RegistrationDate"));
+        return accountHolder;
     }
 
     @Override
-    public boolean insert(Connection connection, AccountHolder item) {
+    public int insert(Connection connection, AccountHolder item) throws SQLException {
         String insertSQL = String.format(
-                "INSERT INTO %1$s (firstName, lastName, email, birthDate, registrationDate)" +
-                "VALUES (%2$s, %3$s, %4$s, %5$s, %6$s)",
-                TableName, item.getFirstName(), item.getLastName(), item.getEmail(), item.getBirthDate(), item.getRegistrationDate());
-
-        return false;
+                "INSERT INTO %1$s (FirstName, LastName, Email, BirthDate, RegistrationDate)\n" +
+                "VALUES (?, ?, ?, ?, ?);",
+                TableName);
+        PreparedStatement preparedStatement = MySQLDatabase.prepareStatement(connection, insertSQL, (ps) -> write(ps, item));
+        return preparedStatement.executeUpdate();
     }
 
     @Override
-    public boolean update(Connection connection, AccountHolder item) {
+    public boolean update(Connection connection, AccountHolder item) throws SQLException {
         String updateSQL = String.format(
-            "UPDATE %1$s " +
-            "SET firstName = %2$s, lastName = %3$s, email = %4$s, birthDate = %5$s, registrationDate = %6$s" +
-            "WHERE id = %7$s",
-            TableName, item.getFirstName(), item.getLastName(), item.getEmail(), item.getBirthDate(), item.getRegistrationDate(), item.getId());
+            "UPDATE %1$s\n" +
+            "SET FirstName = ?, LastName = ?, Email = ?, BirthDate = ?, RegistrationDate = ?\n" +
+            "WHERE Id = ?",
+            TableName);
+        PreparedStatement preparedStatement = MySQLDatabase.prepareStatement(connection, updateSQL, (ps) -> {
+            write(ps, item);
+            ps.setInt(6, item.getId());
+        });
+        return preparedStatement.execute();
+    }
 
-        return false;
+    private void write (PreparedStatement statement, AccountHolder item) throws SQLException {
+        statement.setString(1, item.getFirstName());
+        statement.setString(2, item.getLastName());
+        statement.setString(3, item.getEmail());
+        statement.setDate(4, item.getBirthDate());
+        statement.setDate(5, item.getRegistrationDate());
     }
 
     @Override
-    public boolean delete(Connection connection, int id) {
+    public boolean delete(Connection connection, int id) throws SQLException {
         String deleteSQL = String.format(
-            "DELETE FROM %1$s " +
-            "WHERE id = %2$s",
-            TableName, id);
-
-        return false;
+            "DELETE FROM %1$s\n" +
+            "WHERE Id = ?",
+            TableName);
+        PreparedStatement preparedStatement = MySQLDatabase.prepareStatement(connection, deleteSQL, (ps) -> ps.setInt(1, id));
+        return preparedStatement.execute();
     }
 }

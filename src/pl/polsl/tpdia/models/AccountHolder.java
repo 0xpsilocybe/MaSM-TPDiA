@@ -1,17 +1,18 @@
 package pl.polsl.tpdia.models;
 
-import java.util.Date;
+import java.sql.Date;
 
 /**
- * Created by Psilo on 29.08.2016.
+ * Account holder database model
+ * @author Psilo
  */
 public class AccountHolder implements java.io.Serializable {
-    int id;
-    String firstName;
-    String lastName;
-    String email;
-    Date registrationDate;
-    Date birthDate;
+    private int id;
+    private String firstName;
+    private String lastName;
+    private String email;
+    private Date registrationDate;
+    private Date birthDate;
 
     public int getId() {
         return id;

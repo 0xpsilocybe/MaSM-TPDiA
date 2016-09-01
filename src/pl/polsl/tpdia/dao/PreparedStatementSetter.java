@@ -4,7 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
- * Created by Psilo on 30.08.2016.
+ * Contract for preparing secure sql statements
  */
 public interface PreparedStatementSetter {
     void setValues(PreparedStatement ps) throws SQLException;

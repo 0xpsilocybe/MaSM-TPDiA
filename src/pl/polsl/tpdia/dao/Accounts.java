@@ -5,26 +5,27 @@ import pl.polsl.tpdia.models.Account;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Collection;
+import java.util.List;
 
 /**
- * Created by Psilo on 29.08.2016.
+ * MySQL implementation of AccountsDAO
+ * @author  Psilo
  */
-public class Accounts implements AccountsDAO {
+class Accounts implements AccountsDAO {
     private final String TableName = "Accounts";
 
     @Override
     public boolean create(Connection connection) throws SQLException {
-        Statement statement = connection.createStatement();
         String createSQL = String.format(
-            "CREATE TABLE %1$s (" +
-                "id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY, " +
-                "accountHolder INT(6) NOT NULL, " +
-                "balance NUMERIC(15,2) NOT NULL, " +
-                "currency ENUM('PLN', 'EUR', 'USD', 'GBP', 'CHF'), " +
-                "type VARCHAR(25)" +
+            "CREATE TABLE %1$s (\n" +
+                "id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,\n" +
+                "accountHolder INT(6) NOT NULL,\n" +
+                "balance NUMERIC(15,2) NOT NULL,\n" +
+                "currency ENUM('PLN', 'EUR', 'USD', 'GBP', 'CHF'),\n" +
+                "type VARCHAR(25)\n" +
             ")",
             TableName);
+        Statement statement = connection.createStatement();
         return statement.execute(createSQL);
     }
 
@@ -34,13 +35,13 @@ public class Accounts implements AccountsDAO {
     }
 
     @Override
-    public Collection<Account> selectAll(Connection connection) {
+    public List<Account> selectAll(Connection connection) {
         return null;
     }
 
     @Override
-    public boolean insert(Connection connection, Account item) {
-        return false;
+    public int insert(Connection connection, Account item) {
+        return -1;
     }
 
     @Override
