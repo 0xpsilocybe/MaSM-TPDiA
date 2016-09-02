@@ -39,7 +39,7 @@ class Transactions implements TransactionsDAO {
                         "WHERE Id = ?",
                 TableName);
         try (PreparedStatement preparedStatement = MySQLDatabase.prepareStatement(connection, selectSQL, (ps) -> ps.setInt(1, id))) {
-            try (ResultSet result = preparedStatement.executeQuery(selectSQL)) {
+            try (ResultSet result = preparedStatement.executeQuery()) {
                 if (result.next()) {
                     return read(result);
                 }
@@ -56,6 +56,106 @@ class Transactions implements TransactionsDAO {
                 TableName);
         try (Statement statement = connection.createStatement()) {
             try (ResultSet result = statement.executeQuery(selectSQL)) {
+                List<Transaction> transactions = new ArrayList<>();
+                while (result.next()) {
+                    Transaction next = read(result);
+                    transactions.add(next);
+                }
+                return transactions;
+            }
+        }
+    }
+    @Override
+    public List<Transaction> selectByAccountHolder(Connection connection, int accountHolderId) throws SQLException {
+        String selectSQL = String.format(
+                "SELECT t.Id, t.AccountFrom, t.AccountTo, t.Amount, t.PostingDate, t.Type\n" +
+                "FROM %1$s t, %2$s a\n" +
+                "WHERE (t.AccountFrom = a.Id AND a.AccountHolder = ?)\n" +
+                "OR (t.AccountTo = a.Id AND a.AccountHolder = ?)",
+                TableName, "Accounts");
+        try (PreparedStatement preparedStatement = MySQLDatabase.prepareStatement(connection, selectSQL, (ps) -> {
+            ps.setInt(1, accountHolderId);
+            ps.setInt(2, accountHolderId);
+        })) {
+            try (ResultSet result = preparedStatement.executeQuery()) {
+                List<Transaction> transactions = new ArrayList<>();
+                while (result.next()) {
+                    Transaction next = read(result);
+                    transactions.add(next);
+                }
+                return transactions;
+            }
+        }
+    }
+
+    @Override
+    public List<Transaction> selectAccountHolderIncoming(Connection connection, int accountHolderId) throws SQLException {
+        String selectSQL = String.format(
+                "SELECT t.Id, t.AccountFrom, t.AccountTo, t.Amount, t.PostingDate, t.Type\n" +
+                        "FROM %1$s t, %2$s a\n" +
+                        "WHERE t.AccountTo = a.Id\n" +
+                        "AND a.AccountHolder = ?",
+                TableName, "Accounts");
+        try (PreparedStatement preparedStatement = MySQLDatabase.prepareStatement(connection, selectSQL, (ps) -> ps.setInt(1, accountHolderId))) {
+            try (ResultSet result = preparedStatement.executeQuery()) {
+                List<Transaction> transactions = new ArrayList<>();
+                while (result.next()) {
+                    Transaction next = read(result);
+                    transactions.add(next);
+                }
+                return transactions;
+            }
+        }
+    }
+
+    @Override
+    public List<Transaction> selectAccountHolderOutcoming(Connection connection, int accountHolderId) throws SQLException {
+        String selectSQL = String.format(
+                "SELECT t.Id, t.AccountFrom, t.AccountTo, t.Amount, t.PostingDate, t.Type\n" +
+                        "FROM %1$s t, %2$s a\n" +
+                        "WHERE t.AccountFrom = a.Id\n" +
+                        "AND a.AccountHolder = ?",
+                TableName, "Accounts");
+        try (PreparedStatement preparedStatement = MySQLDatabase.prepareStatement(connection, selectSQL, (ps) -> ps.setInt(1, accountHolderId))) {
+            try (ResultSet result = preparedStatement.executeQuery()) {
+                List<Transaction> transactions = new ArrayList<>();
+                while (result.next()) {
+                    Transaction next = read(result);
+                    transactions.add(next);
+                }
+                return transactions;
+            }
+        }
+    }
+
+    @Override
+    public List<Transaction> selectByDestinationAccount(Connection connection, int accountToId) throws SQLException {
+        String selectSQL = String.format(
+                "SELECT Id, AccountFrom, AccountTo, Amount, PostingDate, Type\n" +
+                        "FROM %1$s\n" +
+                        "WHERE AccountTo = ?",
+                TableName);
+        try (PreparedStatement preparedStatement = MySQLDatabase.prepareStatement(connection, selectSQL, (ps) -> ps.setInt(1, accountToId))) {
+            try (ResultSet result = preparedStatement.executeQuery()) {
+                List<Transaction> transactions = new ArrayList<>();
+                while (result.next()) {
+                    Transaction next = read(result);
+                    transactions.add(next);
+                }
+                return transactions;
+            }
+        }
+    }
+
+    @Override
+    public List<Transaction> selectBySourceAccount(Connection connection, int accountFromId) throws SQLException {
+        String selectSQL = String.format(
+                "SELECT Id, AccountFrom, AccountTo, Amount, PostingDate, Type\n" +
+                        "FROM %1$s\n" +
+                        "WHERE AccountFrom = ?",
+                TableName);
+        try (PreparedStatement preparedStatement = MySQLDatabase.prepareStatement(connection, selectSQL, (ps) -> ps.setInt(1, accountFromId))) {
+            try (ResultSet result = preparedStatement.executeQuery()) {
                 List<Transaction> transactions = new ArrayList<>();
                 while (result.next()) {
                     Transaction next = read(result);

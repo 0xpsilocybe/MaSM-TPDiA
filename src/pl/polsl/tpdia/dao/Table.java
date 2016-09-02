@@ -8,7 +8,7 @@ import java.util.List;
  * Basic database table operations
  * @param <T> Database model
  */
-public interface Table<T> {
+interface Table<T> {
     boolean create(Connection connection) throws SQLException;
     T selectById(Connection connection, int id) throws SQLException;
     List<T> selectAll(Connection connection) throws SQLException;

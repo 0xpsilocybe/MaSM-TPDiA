@@ -39,7 +39,7 @@ class AccountHolders implements AccountHoldersDAO {
                         "WHERE Id = ?",
                 TableName);
         try (PreparedStatement preparedStatement = MySQLDatabase.prepareStatement(connection, selectSQL, (ps) -> ps.setInt(1, id))) {
-            try (ResultSet result = preparedStatement.executeQuery(selectSQL)) {
+            try (ResultSet result = preparedStatement.executeQuery()) {
                 if (result.next()) {
                     return read(result);
                 }
