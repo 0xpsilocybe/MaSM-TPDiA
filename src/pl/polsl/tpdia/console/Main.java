@@ -8,21 +8,28 @@ import pl.polsl.tpdia.models.Account;
 import pl.polsl.tpdia.models.AccountHolder;
 import pl.polsl.tpdia.models.Transaction;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class Main {
+    private static final Logger logger = LogManager.getLogger(Main.class.getName());
+
     public static void main(String[] args) {
         try {
+            logger.trace("Application start");
             MySQLDatabase database = new MySQLDatabase();
+            logger.trace("Database connected and restored.");
+
             Connection connection = MySQLDatabase.getConnection();
             connection.setAutoCommit(false);
 
-            //Test AccountHoldersDAO methods
+            logger.trace("Test AccountHoldersDAO methods");
             AccountHoldersDAO accountHolders =  database.getAccountHolders();
             for (int i = 0; i < 10; i++) {
                 AccountHolder accountHolder = new AccountHolder();
@@ -40,7 +47,7 @@ public class Main {
             accountHolders.delete(connection, 2);
             connection.commit();
 
-            //Test AccountsDAO methods
+            logger.trace("Test AccountsDAO methods");
             AccountsDAO accounts =  database.getAccounts();
             for (int i = 0; i < 300; i++) {
                 Account account = new Account();
@@ -57,7 +64,7 @@ public class Main {
             accounts.delete(connection, 2);
             connection.commit();
 
-            //Test AccountsDAO methods
+            logger.trace("Test AccountsDAO methods");
             TransactionsDAO transactions =  database.getTransactions();
             for (int i = 0; i < 3000; i++) {
                 Transaction transaction = new Transaction();
@@ -75,10 +82,8 @@ public class Main {
             connection.commit();
 
             connection.close();
-            System.in.read();
+            logger.trace("Application close");
         } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
             e.printStackTrace();
         }
     }

@@ -1,6 +1,5 @@
 package pl.polsl.tpdia.updates.generator;
 
-import pl.polsl.tpdia.helpers.Logger;
 import pl.polsl.tpdia.helpers.WorkerHelper;
 import pl.polsl.tpdia.updates.MasmUpdateDescriptor;
 import pl.polsl.tpdia.updates.handler.MasmUpdateWorker;
@@ -12,9 +11,7 @@ public class UpdatesGenerator extends WorkerHelper {
 
     private MasmUpdateWorker masmUpdateWorker;
 
-    public UpdatesGenerator(MasmUpdateWorker masmUpdateWorker, Logger logger) {
-        super(logger);
-
+    public UpdatesGenerator(MasmUpdateWorker masmUpdateWorker) {
         this.masmUpdateWorker = masmUpdateWorker;
     }
 

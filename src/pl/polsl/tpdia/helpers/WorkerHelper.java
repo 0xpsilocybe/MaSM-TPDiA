@@ -1,25 +1,25 @@
 package pl.polsl.tpdia.helpers;
 
-import java.time.Duration;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
 
 /**
  * Created by Szymon on 29.08.2016.
  */
 public abstract class WorkerHelper implements Runnable {
+    protected static final Logger logger = LogManager.getLogger(WorkerHelper.class.getName());
 
-    protected final Logger logger;
     private boolean isStopRequested = false;
     private Thread runningThread;
 
     public abstract long getDelayBetweenOperations();
 
-    public WorkerHelper(Logger logger) {
+    public WorkerHelper() {
 
-        this.logger = logger;
     }
 
     public void run() {
-
         if(runningThread != null) {
             throw new IllegalStateException("Cannot start work of this instance of WorkerHelper is already running. Stop it first.");
         }
@@ -34,7 +34,7 @@ public abstract class WorkerHelper implements Runnable {
             }
         } catch(InterruptedException ex) {
             Thread.currentThread().interrupt();
-            logger.Info("Terminated WorkerHelper's thread." + ex.getMessage());
+            logger.error("Terminated WorkerHelper's thread.", ex);
         }
     }
 

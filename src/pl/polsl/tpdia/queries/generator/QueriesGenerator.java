@@ -3,7 +3,6 @@ package pl.polsl.tpdia.queries.generator;
 import pl.polsl.tpdia.queries.MasmQueryDescriptor;
 import pl.polsl.tpdia.queries.MasmQueryResponseDescriptor;
 import pl.polsl.tpdia.queries.handler.MasmQueryWorker;
-import pl.polsl.tpdia.helpers.Logger;
 import pl.polsl.tpdia.helpers.WorkerHelper;
 
 /**
@@ -13,9 +12,7 @@ public class QueriesGenerator extends WorkerHelper {
 
     private MasmQueryWorker masmQueryWorker;
 
-    public QueriesGenerator(MasmQueryWorker masmQueryWorker, Logger logger) {
-        super(logger);
-
+    public QueriesGenerator(MasmQueryWorker masmQueryWorker) {
         this.masmQueryWorker = masmQueryWorker;
     }
 

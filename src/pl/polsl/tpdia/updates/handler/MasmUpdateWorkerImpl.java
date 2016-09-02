@@ -1,6 +1,5 @@
 package pl.polsl.tpdia.updates.handler;
 
-import pl.polsl.tpdia.helpers.Logger;
 import pl.polsl.tpdia.helpers.WorkerHelper;
 import pl.polsl.tpdia.updates.MasmUpdateDescriptor;
 
@@ -15,9 +14,7 @@ public class MasmUpdateWorkerImpl extends WorkerHelper implements MasmUpdateWork
     private final MasmUpdateCore masmUpdateCore;
     private final BlockingQueue<MasmUpdateDescriptor> queuedMasmUpdates;
 
-    public MasmUpdateWorkerImpl(MasmUpdateCore masmUpdateCore, Logger logger) {
-        super(logger);
-
+    public MasmUpdateWorkerImpl(MasmUpdateCore masmUpdateCore) {
         this.masmUpdateCore = masmUpdateCore;
         this.queuedMasmUpdates = new ArrayBlockingQueue<MasmUpdateDescriptor>(10);
     }
@@ -29,7 +26,7 @@ public class MasmUpdateWorkerImpl extends WorkerHelper implements MasmUpdateWork
             queuedMasmUpdates.put(masmUpdateDescriptor);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
-            logger.Info("Terminated MasmUpdateWorker's task." + ex.getMessage());
+            logger.error("Terminated MasmUpdateWorker's task.", ex);
         }
     }
 

@@ -1,15 +1,21 @@
 package pl.polsl.tpdia.dao;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import pl.polsl.tpdia.console.Main;
 
 import javax.sql.DataSource;
 import java.beans.PropertyVetoException;
+import java.io.PrintWriter;
 import java.sql.*;
 
 /**
  * Created by Psilo on 26.08.2016.
  */
 public class MySQLDatabase {
+    private static final Logger logger = LogManager.getLogger(Main.class.getName());
+
     private static DataSource dataSource;
     private final static String driver = "com.mysql.jdbc.Driver";
     private final static String url = "jdbc:mysql://localhost:3306/";
