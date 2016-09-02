@@ -5,7 +5,8 @@ import java.sql.SQLException;
 import java.util.List;
 
 /**
- * Created by Psilo on 29.08.2016.
+ * Basic database table operations
+ * @param <T> Database model
  */
 public interface Table<T> {
     boolean create(Connection connection) throws SQLException;
