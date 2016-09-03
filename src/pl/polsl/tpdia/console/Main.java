@@ -44,7 +44,6 @@ public class Main {
             ArrayList<AccountHolder> selectAccountHolders = (ArrayList<AccountHolder>) accountHolders.selectAll(connection);
             selectAccountHolders.get(0).setFirstName("zmieniono");
             accountHolders.update(connection, selectAccountHolders.get(0));
-            accountHolders.delete(connection, 2);
             connection.commit();
 
             logger.trace("Test AccountsDAO methods");
@@ -61,7 +60,6 @@ public class Main {
             ArrayList<Account> selectAccounts = (ArrayList<Account>) accounts.selectAll(connection);
             selectAccounts.get(0).setBalance(BigDecimal.valueOf(2000000.12));
             accounts.update(connection, selectAccounts.get(0));
-            accounts.delete(connection, 2);
             connection.commit();
 
             logger.trace("Test AccountsDAO methods");
@@ -78,7 +76,6 @@ public class Main {
             ArrayList<Transaction> selectTransactions = (ArrayList<Transaction>) transactions.selectAll(connection);
             selectTransactions.get(0).setAmount(BigDecimal.valueOf(8888.88));
             transactions.update(connection, selectTransactions.get(0));
-            transactions.delete(connection, 2);
             connection.commit();
 
             connection.close();

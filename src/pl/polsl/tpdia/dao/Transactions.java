@@ -19,8 +19,8 @@ class Transactions implements TransactionsDAO {
         String createSQL = String.format(
                 "CREATE TABLE %1$s (\n" +
                         "Id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,\n" +
-                        "AccountFrom INT(6) NOT NULL,\n" +
-                        "AccountTo INT(6) NOT NULL,\n" +
+                        "AccountFrom INT(6) UNSIGNED NOT NULL,\n" +
+                        "AccountTo INT(6) UNSIGNED NOT NULL,\n" +
                         "Amount NUMERIC(15,2) NOT NULL,\n" +
                         "PostingDate TIMESTAMP,\n" +
                         "Type VARCHAR(10)\n" +
@@ -28,6 +28,27 @@ class Transactions implements TransactionsDAO {
                 TableName);
         try (Statement statement = connection.createStatement()) {
             return statement.execute(createSQL);
+        }
+    }
+
+    public boolean createForeignKey(Connection connection) throws SQLException {
+        String accountFromForeignKeySQL = String.format(
+                "ALTER TABLE `%1$s`\n" +
+                        "ADD CONSTRAINT fk_AccFrom_Id\n" +
+                        "FOREIGN KEY (AccountFrom)\n" +
+                        "REFERENCES Accounts(Id)\n",
+                TableName);
+        String accountToForeignKeySQL = String.format(
+                "ALTER TABLE `%1$s`\n" +
+                        "ADD CONSTRAINT fk_AccTo_Id\n" +
+                        "FOREIGN KEY (AccountTo)\n" +
+                        "REFERENCES Accounts(Id)\n",
+                TableName);
+        try (Statement statement = connection.createStatement()) {
+            return (
+                    statement.execute(accountFromForeignKeySQL) &&
+                    statement.execute(accountToForeignKeySQL)
+            );
         }
     }
 
@@ -65,13 +86,14 @@ class Transactions implements TransactionsDAO {
             }
         }
     }
+
     @Override
     public List<Transaction> selectByAccountHolder(Connection connection, int accountHolderId) throws SQLException {
         String selectSQL = String.format(
                 "SELECT t.Id, t.AccountFrom, t.AccountTo, t.Amount, t.PostingDate, t.Type\n" +
-                "FROM %1$s t, %2$s a\n" +
-                "WHERE (t.AccountFrom = a.Id AND a.AccountHolder = ?)\n" +
-                "OR (t.AccountTo = a.Id AND a.AccountHolder = ?)",
+                        "FROM %1$s t, %2$s a\n" +
+                        "WHERE (t.AccountFrom = a.Id AND a.AccountHolder = ?)\n" +
+                        "OR (t.AccountTo = a.Id AND a.AccountHolder = ?)",
                 TableName, "Accounts");
         try (PreparedStatement preparedStatement = MySQLDatabase.prepareStatement(connection, selectSQL, (ps) -> {
             ps.setInt(1, accountHolderId);

@@ -1,21 +1,16 @@
 package pl.polsl.tpdia.dao;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import pl.polsl.tpdia.console.Main;
 
 import javax.sql.DataSource;
 import java.beans.PropertyVetoException;
-import java.io.PrintWriter;
 import java.sql.*;
 
 /**
+ * MySQL database manager
  * Created by Psilo on 26.08.2016.
  */
 public class MySQLDatabase {
-    private static final Logger logger = LogManager.getLogger(Main.class.getName());
-
     private static DataSource dataSource;
     private final static String driver = "com.mysql.jdbc.Driver";
     private final static String url = "jdbc:mysql://localhost:3306/";
@@ -23,16 +18,10 @@ public class MySQLDatabase {
     private final static String password = "tpdia";
     private final static String databaseName = "tpdiadb";
 
-    private AccountsDAO accounts;
-    private TransactionsDAO transactions;
-    private AccountHoldersDAO accountHolders;
-
-    /**
-     * Initialize pooled datasource with C3P0
-     */
     static {
         boolean databaseCreated = createDatabase();
         if (databaseCreated) {
+            /* Initialize pooled datasource with C3P0 */
             ComboPooledDataSource cpds = new ComboPooledDataSource();
             try {
                 cpds.setDriverClass(driver);
@@ -55,7 +44,7 @@ public class MySQLDatabase {
      *
       * @return Operation success
      */
-    static boolean createDatabase() {
+    private static boolean createDatabase() {
         try {
             Class.forName(driver);
         } catch (ClassNotFoundException e) {
@@ -80,8 +69,7 @@ public class MySQLDatabase {
      * @throws SQLException when connection cannot be established
      */
     public static Connection getConnection() throws SQLException {
-        Connection connection = dataSource.getConnection();
-        return connection;
+        return dataSource.getConnection();
     }
 
     /**
@@ -92,7 +80,7 @@ public class MySQLDatabase {
      * @return Prepared statement with set variables
      * @throws SQLException when some of the statements variables cannot be set
      */
-    public static PreparedStatement prepareStatement(
+    static PreparedStatement prepareStatement(
             Connection connection,
             String sql,
             PreparedStatementSetter setter)
@@ -111,6 +99,11 @@ public class MySQLDatabase {
         String createSQL = String.format("CREATE DATABASE %1$s", databaseName);
         statement.addBatch(createSQL);
     }
+
+
+    private AccountsDAO accounts;
+    private TransactionsDAO transactions;
+    private AccountHoldersDAO accountHolders;
 
     /**
      * Initializes MySQL DAO and database
@@ -132,6 +125,9 @@ public class MySQLDatabase {
             accounts.create(connection);
             transactions.create(connection);
             accountHolders.create(connection);
+            connection.commit();
+            accounts.createForeignKey(connection);
+            transactions.createForeignKey(connection);
             connection.commit();
             return true;
         } catch (SQLException e) {

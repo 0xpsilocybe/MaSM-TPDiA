@@ -20,7 +20,7 @@ class Accounts implements AccountsDAO {
         String createSQL = String.format(
                 "CREATE TABLE %1$s (\n" +
                         "Id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,\n" +
-                        "AccountHolder INT(6) NOT NULL,\n" +
+                        "AccountHolder INT(6) UNSIGNED NOT NULL,\n" +
                         "Balance NUMERIC(15,2) NOT NULL,\n" +
                         "Currency ENUM('PLN', 'EUR', 'USD', 'GBP', 'CHF'),\n" +
                         "Type VARCHAR(25)\n" +
@@ -28,6 +28,18 @@ class Accounts implements AccountsDAO {
                 TableName);
         try (Statement statement = connection.createStatement()) {
             return statement.execute(createSQL);
+        }
+    }
+
+    public boolean createForeignKey(Connection connection) throws SQLException {
+        String accountHolderforeignKeySQL = String.format(
+                "ALTER TABLE `%1$s`\n" +
+                        "ADD CONSTRAINT fk_AccHold_Id\n" +
+                        "FOREIGN KEY (AccountHolder)\n" +
+                        "REFERENCES AccountHolders(Id)\n",
+                TableName);
+        try (Statement statement = connection.createStatement()) {
+            return statement.execute(accountHolderforeignKeySQL);
         }
     }
 

@@ -6,6 +6,7 @@ import pl.polsl.tpdia.queries.handler.MasmQueryWorker;
 import pl.polsl.tpdia.helpers.WorkerHelper;
 
 /**
+ * Worker generating random SQL analityc queries
  * Created by Szymon on 29.08.2016.
  */
 public class QueriesGenerator extends WorkerHelper {

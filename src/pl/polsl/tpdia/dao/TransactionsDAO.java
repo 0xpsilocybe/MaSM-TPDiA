@@ -11,6 +11,8 @@ import java.util.List;
  * @author Psilo
  */
 public interface TransactionsDAO extends Table<Transaction> {
+    boolean createForeignKey(Connection connection) throws SQLException;
+
     List<Transaction> selectByAccountHolder(Connection connection, int accountHolderId) throws SQLException;
     List<Transaction> selectAccountHolderIncoming(Connection connection, int accountHolderId) throws SQLException;
     List<Transaction> selectAccountHolderOutcoming(Connection connection, int accountHolderId) throws SQLException;

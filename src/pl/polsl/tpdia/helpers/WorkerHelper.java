@@ -5,6 +5,7 @@ import org.apache.logging.log4j.LogManager;
 
 
 /**
+ * Base worker
  * Created by Szymon on 29.08.2016.
  */
 public abstract class WorkerHelper implements Runnable {
@@ -14,10 +15,6 @@ public abstract class WorkerHelper implements Runnable {
     private Thread runningThread;
 
     public abstract long getDelayBetweenOperations();
-
-    public WorkerHelper() {
-
-    }
 
     public void run() {
         if(runningThread != null) {
@@ -29,7 +26,7 @@ public abstract class WorkerHelper implements Runnable {
 
         try{
             while(!isStopRequested){
-                Thread.sleep(getDelayBetweenOperations());
+                Thread.sleep(duration);
                 doOperation();
             }
         } catch(InterruptedException ex) {

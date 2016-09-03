@@ -18,12 +18,12 @@ class AccountHolders implements AccountHoldersDAO {
     public boolean create(Connection connection) throws SQLException {
         String createSQL = String.format(
                 "CREATE TABLE `%1$s` (\n" +
-                        "`Id` INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,\n" +
-                        "`FirstName` VARCHAR(30) NOT NULL,\n" +
-                        "`LastName` VARCHAR(40) NOT NULL,\n" +
-                        "`Email` VARCHAR(50),\n" +
-                        "`BirthDate` TIMESTAMP,\n" +
-                        "`RegistrationDate` TIMESTAMP\n" +
+                        "Id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,\n" +
+                        "FirstName VARCHAR(30) NOT NULL,\n" +
+                        "LastName VARCHAR(40) NOT NULL,\n" +
+                        "Email VARCHAR(50),\n" +
+                        "BirthDate TIMESTAMP,\n" +
+                        "RegistrationDate TIMESTAMP\n" +
                         ")",
                 TableName);
         try (Statement statement = connection.createStatement()) {
