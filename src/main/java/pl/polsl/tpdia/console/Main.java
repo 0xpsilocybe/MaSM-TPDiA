@@ -29,7 +29,8 @@ public class Main {
             Generator<AccountHolder> ahGen = new AccountHolderGenerator();
             for(int i = 0; i< 100; i++) {
                 AccountHolder a = ahGen.generate();
-                accountHolders.insert(connection, a);
+                int id = accountHolders.insert(connection, a);
+                a.setId(id);
             }
             connection.commit();
             connection.close();
