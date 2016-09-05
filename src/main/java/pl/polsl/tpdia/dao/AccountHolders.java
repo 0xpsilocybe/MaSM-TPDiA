@@ -22,8 +22,8 @@ class AccountHolders implements AccountHoldersDAO {
                         "FirstName VARCHAR(30) NOT NULL,\n" +
                         "LastName VARCHAR(40) NOT NULL,\n" +
                         "Email VARCHAR(50),\n" +
-                        "BirthDate TIMESTAMP,\n" +
-                        "RegistrationDate TIMESTAMP\n" +
+                        "BirthDate DATE,\n" +
+                        "RegistrationDate DATE\n" +
                         ")",
                 TableName);
         try (Statement statement = connection.createStatement()) {
