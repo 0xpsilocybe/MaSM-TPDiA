@@ -21,7 +21,7 @@ class AccountHolders implements AccountHoldersDAO {
                         "Id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,\n" +
                         "FirstName VARCHAR(30) NOT NULL,\n" +
                         "LastName VARCHAR(40) NOT NULL,\n" +
-                        "Email VARCHAR(50),\n" +
+                        "Email VARCHAR(100),\n" +
                         "BirthDate DATE,\n" +
                         "RegistrationDate DATE\n" +
                         ")",

@@ -3,23 +3,23 @@ package pl.polsl.tpdia.helpers;
 import pl.polsl.tpdia.models.AccountHolder;
 
 import java.io.*;
+import java.security.SecureRandom;
 import java.sql.Date;
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.Scanner;
 
 /**
  * Random account holder generator
  */
-public class AccountHolderGenerator implements Generator<AccountHolder> {
-    private Random random = new Random();
+public class AccountHolderGenerator extends Generator<AccountHolder> {
     private ArrayList<String> domains;
     private ArrayList<String> maleNames;
     private ArrayList<String> femaleNames;
     private ArrayList<String> maleSurnames;
     private ArrayList<String> femaleSurnames;
 
-    public AccountHolderGenerator() {
+    public AccountHolderGenerator(SecureRandom random) {
+        super(random);
         this.domains = readFromFile("domains.txt");
         this.maleNames = readFromFile("maleNames.txt");
         this.femaleNames = readFromFile("femaleNames.txt");
