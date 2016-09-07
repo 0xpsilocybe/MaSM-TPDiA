@@ -34,11 +34,15 @@ public class Main {
             MySQLDatabase database = new MySQLDatabase();
 
             logger.trace("Populating database with random test data");
-            populateDbWithTestData(database);
+            List<Integer> transactionIds = populateDbWithTestData(database);
 
             logger.trace("Application close");
 
-            //UpdatesGenerator updatesGenerator = new UpdatesGenerator()
+            TransactionMasmUpdateWorker transactionMasmUpdateWorker = new TransactionMasmUpdateWorker();
+            UpdatesGenerator updatesGenerator = new UpdatesGenerator(transactionMasmUpdateWorker, transactionIds);
+
+            transactionMasmUpdateWorker.run();
+            updatesGenerator.run();
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -51,7 +55,7 @@ public class Main {
     private static final int MIN_TRANSACTIONS_PER_ACCOUNT_COUNT = 5;
     private static final int MAX_TRANSACTIONS_PER_ACCOUNT_COUNT = 10;
 
-    private static void populateDbWithTestData(MySQLDatabase database) throws SQLException {
+    private static List<Integer> populateDbWithTestData(MySQLDatabase database) throws SQLException {
         SecureRandom random = new SecureRandom();
         logger.trace("Creating random account holders");
         List<Integer> accountHoldersIds = createRandomAccountHolders(database, random);
@@ -60,7 +64,7 @@ public class Main {
         List<Integer> accountsIds = createRandomAccountsForAccountHolders(database, random, accountHoldersIds);
 
         logger.trace("Creating random transactions");
-        createRandomTransactionsForAccounts(database, random, accountsIds);
+        return createRandomTransactionsForAccounts(database, random, accountsIds);
     }
 
     private static List<Integer> createRandomAccountHolders(MySQLDatabase database, SecureRandom random)
