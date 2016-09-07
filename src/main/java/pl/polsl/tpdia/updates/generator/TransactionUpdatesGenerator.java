@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * Created by Szymon on 29.08.2016.
  */
-public class UpdatesGenerator extends WorkerHelper {
+public class TransactionUpdatesGenerator extends WorkerHelper {
 
     private final MasmUpdateWorker masmUpdateWorker;
     private final List<Integer> transactionIds;
@@ -23,7 +23,7 @@ public class UpdatesGenerator extends WorkerHelper {
     private final SecureRandom secureRandom;
     private final EnumGenerator<UpdateType> updateTypeGenerator;
 
-    public UpdatesGenerator(MasmUpdateWorker masmUpdateWorker, List<Integer> transactionIds) {
+    public TransactionUpdatesGenerator(MasmUpdateWorker masmUpdateWorker, List<Integer> transactionIds) {
         this.masmUpdateWorker = masmUpdateWorker;
         this.transactionIds = transactionIds;
         this.secureRandom = new SecureRandom();

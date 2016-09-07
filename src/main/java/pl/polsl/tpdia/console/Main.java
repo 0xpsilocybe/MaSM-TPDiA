@@ -14,8 +14,8 @@ import pl.polsl.tpdia.helpers.TransactionGenerator;
 import pl.polsl.tpdia.models.Account;
 import pl.polsl.tpdia.models.AccountHolder;
 import pl.polsl.tpdia.models.Transaction;
-import pl.polsl.tpdia.updates.generator.UpdatesGenerator;
-import pl.polsl.tpdia.updates.handler.impl.account.TransactionMasmUpdateWorker;
+import pl.polsl.tpdia.updates.generator.TransactionUpdatesGenerator;
+import pl.polsl.tpdia.updates.handler.MasmUpdateWorkerImpl;
 
 import java.security.SecureRandom;
 import java.sql.Connection;
@@ -38,11 +38,11 @@ public class Main {
 
             logger.trace("Application close");
 
-            TransactionMasmUpdateWorker transactionMasmUpdateWorker = new TransactionMasmUpdateWorker();
-            UpdatesGenerator updatesGenerator = new UpdatesGenerator(transactionMasmUpdateWorker, transactionIds);
+            MasmUpdateWorkerImpl transactionMasmUpdateWorker = new MasmUpdateWorkerImpl();
+            TransactionUpdatesGenerator transactionUpdatesGenerator = new TransactionUpdatesGenerator(transactionMasmUpdateWorker, transactionIds);
 
             (new Thread(transactionMasmUpdateWorker)).start();
-            (new Thread(updatesGenerator)).start();
+            (new Thread(transactionUpdatesGenerator)).start();
 
         } catch (SQLException e) {
             e.printStackTrace();

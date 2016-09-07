@@ -11,13 +11,13 @@ import java.util.concurrent.BlockingQueue;
 /**
  * Created by Szymon on 29.08.2016.
  */
-public abstract class MasmUpdateWorkerBase<TUpdateDescriptor>
+public class MasmUpdateWorkerImpl<TUpdateDescriptor>
         extends WorkerHelper implements MasmUpdateWorker<TUpdateDescriptor> {
 
     private final BlockingQueue<MasmUpdateDescriptor<TUpdateDescriptor>> queuedMasmUpdates;
     private final List<MasmUpdateDescriptor<TUpdateDescriptor>> masmUpdateDescriptors;
 
-    public MasmUpdateWorkerBase() {
+    public MasmUpdateWorkerImpl() {
         this.queuedMasmUpdates = new ArrayBlockingQueue<>(10);
         this.masmUpdateDescriptors = new ArrayList<>();
     }
