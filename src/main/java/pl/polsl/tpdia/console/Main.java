@@ -14,6 +14,8 @@ import pl.polsl.tpdia.helpers.TransactionGenerator;
 import pl.polsl.tpdia.models.Account;
 import pl.polsl.tpdia.models.AccountHolder;
 import pl.polsl.tpdia.models.Transaction;
+import pl.polsl.tpdia.queries.handler.MasmQueryWorker;
+import pl.polsl.tpdia.queries.handler.MasmQueryWorkerImpl;
 import pl.polsl.tpdia.updates.generator.TransactionUpdatesGenerator;
 import pl.polsl.tpdia.updates.handler.MasmUpdateWorkerImpl;
 
@@ -36,13 +38,15 @@ public class Main {
             logger.trace("Populating database with random test data");
             List<Integer> transactionIds = populateDbWithTestData(database);
 
-            logger.trace("Application close");
-
-            MasmUpdateWorkerImpl transactionMasmUpdateWorker = new MasmUpdateWorkerImpl();
+            MasmUpdateWorkerImpl<Transaction, TransactionsDAO> transactionMasmUpdateWorker = new MasmUpdateWorkerImpl<>();
             TransactionUpdatesGenerator transactionUpdatesGenerator = new TransactionUpdatesGenerator(transactionMasmUpdateWorker, transactionIds);
 
             (new Thread(transactionMasmUpdateWorker)).start();
             (new Thread(transactionUpdatesGenerator)).start();
+
+            MasmQueryWorkerImpl<Transaction, TransactionsDAO> transactionMasmQueryWorker = new MasmQueryWorkerImpl<>(transactionUpdatesGenerator);
+
+            (new Thread(transactionMasmQueryWorker)).start();
 
         } catch (SQLException e) {
             e.printStackTrace();

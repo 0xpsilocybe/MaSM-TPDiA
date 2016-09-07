@@ -1,5 +1,6 @@
 package pl.polsl.tpdia.updates.handler;
 
+import pl.polsl.tpdia.dao.Table;
 import pl.polsl.tpdia.helpers.WorkerHelper;
 import pl.polsl.tpdia.updates.MasmUpdateDescriptor;
 
@@ -11,11 +12,11 @@ import java.util.concurrent.BlockingQueue;
 /**
  * Created by Szymon on 29.08.2016.
  */
-public class MasmUpdateWorkerImpl<TUpdateDescriptor>
-        extends WorkerHelper implements MasmUpdateWorker<TUpdateDescriptor> {
+public class MasmUpdateWorkerImpl<TUpdateDescriptor, TDao extends Table<TUpdateDescriptor>>
+        extends WorkerHelper implements MasmUpdateWorker<TUpdateDescriptor, TDao> {
 
-    private final BlockingQueue<MasmUpdateDescriptor<TUpdateDescriptor>> queuedMasmUpdates;
-    private final List<MasmUpdateDescriptor<TUpdateDescriptor>> masmUpdateDescriptors;
+    private final BlockingQueue<MasmUpdateDescriptor<TUpdateDescriptor, TDao>> queuedMasmUpdates;
+    private final List<MasmUpdateDescriptor<TUpdateDescriptor, TDao>> masmUpdateDescriptors;
 
     public MasmUpdateWorkerImpl() {
         this.queuedMasmUpdates = new ArrayBlockingQueue<>(10);
@@ -23,7 +24,7 @@ public class MasmUpdateWorkerImpl<TUpdateDescriptor>
     }
 
     @Override
-    public void queueUpdate(MasmUpdateDescriptor<TUpdateDescriptor> masmUpdateDescriptor) {
+    public void queueUpdate(MasmUpdateDescriptor<TUpdateDescriptor, TDao> masmUpdateDescriptor) {
         try {
             queuedMasmUpdates.put(masmUpdateDescriptor);
         } catch (InterruptedException ex) {
@@ -40,7 +41,7 @@ public class MasmUpdateWorkerImpl<TUpdateDescriptor>
     @Override
     public void doOperation() throws InterruptedException {
 
-        MasmUpdateDescriptor<TUpdateDescriptor> updateDescriptor = queuedMasmUpdates.take();
+        MasmUpdateDescriptor<TUpdateDescriptor, TDao> updateDescriptor = queuedMasmUpdates.take();
         masmUpdateDescriptors.add(updateDescriptor);
     }
 }

@@ -26,6 +26,6 @@ public class QueriesGenerator extends WorkerHelper {
     public void doOperation() throws InterruptedException {
 
         // TODO - Create a mechanism of generating queries
-        MasmQueryResponseDescriptor response = masmQueryWorker.queryMasm(new MasmQueryDescriptor());
+        //MasmQueryResponseDescriptor response = masmQueryWorker.queryMasm(new MasmQueryDescriptor());
     }
 }

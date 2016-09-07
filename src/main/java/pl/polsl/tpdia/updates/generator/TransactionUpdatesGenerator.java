@@ -1,8 +1,9 @@
 package pl.polsl.tpdia.updates.generator;
 
+import pl.polsl.tpdia.dao.TransactionsDAO;
 import pl.polsl.tpdia.helpers.EnumGenerator;
 import pl.polsl.tpdia.helpers.TransactionGenerator;
-import pl.polsl.tpdia.helpers.UpdateType;
+import pl.polsl.tpdia.models.UpdateType;
 import pl.polsl.tpdia.helpers.WorkerHelper;
 import pl.polsl.tpdia.models.Transaction;
 import pl.polsl.tpdia.updates.MasmUpdateDescriptor;
@@ -46,7 +47,7 @@ public class TransactionUpdatesGenerator extends WorkerHelper {
     protected void doOperation() throws InterruptedException {
 
         UpdateType updateType = updateTypeGenerator.generate();
-        MasmUpdateDescriptor<Transaction> descriptor = new TransactionMasmUpdateDescriptor(updateType);
+        MasmUpdateDescriptor<Transaction, TransactionsDAO> descriptor = new TransactionMasmUpdateDescriptor(updateType);
 
         Transaction transaction = null;
 
@@ -70,7 +71,7 @@ public class TransactionUpdatesGenerator extends WorkerHelper {
             }
         }
 
-        descriptor.setUdpateDescriptor(transaction);
+        descriptor.setUpdateDescriptor(transaction);
         masmUpdateWorker.queueUpdate(descriptor);
     }
 }

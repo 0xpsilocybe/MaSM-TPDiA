@@ -1,4 +1,4 @@
-package pl.polsl.tpdia.helpers;
+package pl.polsl.tpdia.models;
 
 /**
  * Created by Szymon on 07.09.2016.
