@@ -5,7 +5,7 @@ import pl.polsl.tpdia.updates.MasmUpdateDescriptor;
 /**
  * Created by Szymon on 29.08.2016.
  */
-public interface MasmUpdateCore {
+public interface MasmUpdateCore<TUpdateDescriptor> {
 
-    void performUpdate(MasmUpdateDescriptor updateDescriptor);
+    void performUpdate(MasmUpdateDescriptor<TUpdateDescriptor> updateDescriptor);
 }

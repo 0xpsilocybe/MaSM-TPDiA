@@ -14,6 +14,8 @@ import pl.polsl.tpdia.helpers.TransactionGenerator;
 import pl.polsl.tpdia.models.Account;
 import pl.polsl.tpdia.models.AccountHolder;
 import pl.polsl.tpdia.models.Transaction;
+import pl.polsl.tpdia.updates.generator.UpdatesGenerator;
+import pl.polsl.tpdia.updates.handler.impl.account.TransactionMasmUpdateWorker;
 
 import java.security.SecureRandom;
 import java.sql.Connection;
@@ -35,6 +37,9 @@ public class Main {
             populateDbWithTestData(database);
 
             logger.trace("Application close");
+
+            //UpdatesGenerator updatesGenerator = new UpdatesGenerator()
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -98,8 +103,10 @@ public class Main {
         }
     }
 
-    private static void createRandomTransactionsForAccounts(MySQLDatabase database, SecureRandom random, List<Integer> accountsIds)
+    private static List<Integer> createRandomTransactionsForAccounts(MySQLDatabase database, SecureRandom random, List<Integer> accountsIds)
             throws SQLException {
+        List<Integer> ids = new ArrayList<>();
+
         TransactionsDAO dao = database.getTransactions();
         Generator<Transaction> generator = new TransactionGenerator(random);
         try (Connection connection = MySQLDatabase.getConnection()) {
@@ -112,10 +119,12 @@ public class Main {
                     Transaction transaction = generator.generate();
                     transaction.setAccountFromId(accountFromId);
                     transaction.setAccountToId(accountsIds.get(index));
-                    dao.insert(connection, transaction);
+                    Integer transactionId = dao.insert(connection, transaction);
+                    ids.add(transactionId);
                     connection.commit();
                 }
             }
+            return ids;
         }
     }
 }

@@ -24,6 +24,6 @@ public class UpdatesGenerator extends WorkerHelper {
     protected void doOperation() throws InterruptedException {
 
         // TODO - Create a mechanism of generating updates
-        masmUpdateWorker.queueUpdate(new MasmUpdateDescriptor());
+        //masmUpdateWorker.queueUpdate();
     }
 }

@@ -1,6 +1,7 @@
 package pl.polsl.tpdia.updates.handler;
 
 import pl.polsl.tpdia.helpers.WorkerHelper;
+import pl.polsl.tpdia.models.Account;
 import pl.polsl.tpdia.updates.MasmUpdateDescriptor;
 
 import java.util.concurrent.ArrayBlockingQueue;
@@ -9,18 +10,19 @@ import java.util.concurrent.BlockingQueue;
 /**
  * Created by Szymon on 29.08.2016.
  */
-public class MasmUpdateWorkerImpl extends WorkerHelper implements MasmUpdateWorker {
+public abstract class MasmUpdateWorkerBase<TUpdateDescriptor>
+        extends WorkerHelper implements MasmUpdateWorker<TUpdateDescriptor> {
 
-    private final MasmUpdateCore masmUpdateCore;
-    private final BlockingQueue<MasmUpdateDescriptor> queuedMasmUpdates;
+    private final MasmUpdateCore<TUpdateDescriptor> masmUpdateCore;
+    private final BlockingQueue<MasmUpdateDescriptor<TUpdateDescriptor>> queuedMasmUpdates;
 
-    public MasmUpdateWorkerImpl(MasmUpdateCore masmUpdateCore) {
+    public MasmUpdateWorkerBase(MasmUpdateCore<TUpdateDescriptor> masmUpdateCore) {
         this.masmUpdateCore = masmUpdateCore;
-        this.queuedMasmUpdates = new ArrayBlockingQueue<MasmUpdateDescriptor>(10);
+        this.queuedMasmUpdates = new ArrayBlockingQueue<>(10);
     }
 
     @Override
-    public void queueUpdate(MasmUpdateDescriptor masmUpdateDescriptor) {
+    public void queueUpdate(MasmUpdateDescriptor<TUpdateDescriptor> masmUpdateDescriptor) {
 
         try {
             queuedMasmUpdates.put(masmUpdateDescriptor);
@@ -38,7 +40,8 @@ public class MasmUpdateWorkerImpl extends WorkerHelper implements MasmUpdateWork
     @Override
     public void doOperation() throws InterruptedException {
 
-        MasmUpdateDescriptor updateDescriptor = queuedMasmUpdates.take();
+        MasmUpdateDescriptor<TUpdateDescriptor> updateDescriptor = queuedMasmUpdates.take();
         masmUpdateCore.performUpdate(updateDescriptor);
     }
 }
+
