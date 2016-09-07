@@ -41,15 +41,15 @@ public class Main {
             TransactionMasmUpdateWorker transactionMasmUpdateWorker = new TransactionMasmUpdateWorker();
             UpdatesGenerator updatesGenerator = new UpdatesGenerator(transactionMasmUpdateWorker, transactionIds);
 
-            transactionMasmUpdateWorker.run();
-            updatesGenerator.run();
+            (new Thread(transactionMasmUpdateWorker)).start();
+            (new Thread(updatesGenerator)).start();
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    private static final int ACCOUNT_HOLDERS_COUNT = 1000;
+    private static final int ACCOUNT_HOLDERS_COUNT = 1;
     private static final int MIN_ACCOUNTS_PER_HOLDER_COUNT = 1;
     private static final int MAX_ACCOUNTS_PER_HOLDER_COUNT = 3;
     private static final int MIN_TRANSACTIONS_PER_ACCOUNT_COUNT = 5;
