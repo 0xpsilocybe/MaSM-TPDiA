@@ -14,9 +14,11 @@ import pl.polsl.tpdia.helpers.TransactionGenerator;
 import pl.polsl.tpdia.models.Account;
 import pl.polsl.tpdia.models.AccountHolder;
 import pl.polsl.tpdia.models.Transaction;
+import pl.polsl.tpdia.queries.generator.QueriesGenerator;
 import pl.polsl.tpdia.queries.handler.MasmQueryWorker;
 import pl.polsl.tpdia.queries.handler.MasmQueryWorkerImpl;
 import pl.polsl.tpdia.updates.generator.TransactionUpdatesGenerator;
+import pl.polsl.tpdia.updates.handler.MasmUpdateWorker;
 import pl.polsl.tpdia.updates.handler.MasmUpdateWorkerImpl;
 
 import java.security.SecureRandom;
@@ -38,15 +40,17 @@ public class Main {
             logger.trace("Populating database with random test data");
             List<Integer> transactionIds = populateDbWithTestData(database);
 
-            MasmUpdateWorkerImpl<Transaction, TransactionsDAO> transactionMasmUpdateWorker = new MasmUpdateWorkerImpl<>();
+            MasmUpdateWorker<Transaction> transactionMasmUpdateWorker = new MasmUpdateWorkerImpl<>();
             TransactionUpdatesGenerator transactionUpdatesGenerator = new TransactionUpdatesGenerator(transactionMasmUpdateWorker, transactionIds);
 
             (new Thread(transactionMasmUpdateWorker)).start();
             (new Thread(transactionUpdatesGenerator)).start();
 
-            MasmQueryWorkerImpl<Transaction, TransactionsDAO> transactionMasmQueryWorker = new MasmQueryWorkerImpl<>(transactionUpdatesGenerator);
+            MasmQueryWorker transactionMasmQueryWorker = new MasmQueryWorkerImpl(transactionUpdatesGenerator, transactionMasmUpdateWorker, database);
+            QueriesGenerator transactionQueriesGenerator = new QueriesGenerator(transactionMasmQueryWorker);
 
             (new Thread(transactionMasmQueryWorker)).start();
+            (new Thread(transactionQueriesGenerator)).start();
 
         } catch (SQLException e) {
             e.printStackTrace();

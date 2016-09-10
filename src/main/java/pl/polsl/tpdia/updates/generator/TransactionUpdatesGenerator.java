@@ -1,6 +1,5 @@
 package pl.polsl.tpdia.updates.generator;
 
-import pl.polsl.tpdia.dao.TransactionsDAO;
 import pl.polsl.tpdia.helpers.EnumGenerator;
 import pl.polsl.tpdia.helpers.TransactionGenerator;
 import pl.polsl.tpdia.models.UpdateType;
@@ -8,14 +7,11 @@ import pl.polsl.tpdia.helpers.WorkerHelper;
 import pl.polsl.tpdia.models.Transaction;
 import pl.polsl.tpdia.updates.MasmUpdateDescriptor;
 import pl.polsl.tpdia.updates.handler.MasmUpdateWorker;
-import pl.polsl.tpdia.updates.handler.impl.account.TransactionMasmUpdateDescriptor;
+import pl.polsl.tpdia.updates.handler.impl.transaction.TransactionMasmUpdateDescriptor;
 
 import java.security.SecureRandom;
 import java.util.List;
 
-/**
- * Created by Szymon on 29.08.2016.
- */
 public class TransactionUpdatesGenerator extends WorkerHelper {
 
     private final MasmUpdateWorker masmUpdateWorker;
@@ -29,9 +25,7 @@ public class TransactionUpdatesGenerator extends WorkerHelper {
         this.transactionIds = transactionIds;
         this.secureRandom = new SecureRandom();
         this.transactionGenerator = new TransactionGenerator(this.secureRandom);
-
-        UpdateType t = UpdateType.INSERT;
-        this.updateTypeGenerator = new EnumGenerator<>(t, this.secureRandom);
+        this.updateTypeGenerator = new EnumGenerator<>(UpdateType.INSERT, this.secureRandom);
     }
 
     public void addTransactionId(int id) {
@@ -47,9 +41,9 @@ public class TransactionUpdatesGenerator extends WorkerHelper {
     protected void doOperation() throws InterruptedException {
 
         UpdateType updateType = updateTypeGenerator.generate();
-        MasmUpdateDescriptor<Transaction, TransactionsDAO> descriptor = new TransactionMasmUpdateDescriptor(updateType);
+        MasmUpdateDescriptor<Transaction> descriptor = new TransactionMasmUpdateDescriptor(updateType);
 
-        Transaction transaction = null;
+        Transaction transaction;
 
         switch(updateType) {
             case INSERT: {
@@ -69,9 +63,12 @@ public class TransactionUpdatesGenerator extends WorkerHelper {
                 transactionIds.remove(index);
                 break;
             }
+            default: {
+                throw new EnumConstantNotPresentException(UpdateType.class, updateType.toString());
+            }
         }
 
-        descriptor.setUpdateDescriptor(transaction);
+        descriptor.setModel(transaction);
         masmUpdateWorker.queueUpdate(descriptor);
     }
 }

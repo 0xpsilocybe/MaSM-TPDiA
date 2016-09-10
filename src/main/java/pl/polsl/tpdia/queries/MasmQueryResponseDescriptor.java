@@ -2,18 +2,15 @@ package pl.polsl.tpdia.queries;
 
 import java.util.List;
 
-/**
- * Created by Szymon on 30.08.2016.
- */
-public abstract class MasmQueryResponseDescriptor<TQueryResponseDescriptor> {
+public abstract class MasmQueryResponseDescriptor<TModel> {
 
-    private final List<TQueryResponseDescriptor> queryResults;
+    private final List<TModel> queryResults;
 
-    public MasmQueryResponseDescriptor(List<TQueryResponseDescriptor> queryResults) {
+    public MasmQueryResponseDescriptor(List<TModel> queryResults) {
         this.queryResults = queryResults;
     }
 
-    public List<TQueryResponseDescriptor> getQueryResults() {
+    public List<TModel> getQueryResults() {
         return queryResults;
     }
 }

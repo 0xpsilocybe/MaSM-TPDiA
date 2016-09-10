@@ -1,31 +1,40 @@
 package pl.polsl.tpdia.queries.handler;
 
-import com.mysql.jdbc.exceptions.MySQLInvalidAuthorizationSpecException;
 import pl.polsl.tpdia.dao.MySQLDatabase;
-import pl.polsl.tpdia.dao.Table;
 import pl.polsl.tpdia.dao.TransactionsDAO;
 import pl.polsl.tpdia.helpers.WorkerHelper;
+import pl.polsl.tpdia.models.QueryType;
 import pl.polsl.tpdia.models.Transaction;
+import pl.polsl.tpdia.models.UpdateType;
 import pl.polsl.tpdia.queries.MasmQueryDescriptor;
-import pl.polsl.tpdia.queries.MasmQueryResponseDescriptor;
+import pl.polsl.tpdia.updates.MasmUpdateDescriptor;
 import pl.polsl.tpdia.updates.generator.TransactionUpdatesGenerator;
+import pl.polsl.tpdia.updates.handler.MasmUpdateWorker;
 
-import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
-/**
- * Created by Szymon on 30.08.2016.
- */
-public class MasmQueryWorkerImpl<TUpdateDescriptor, TDao extends Table<TUpdateDescriptor>>
-        extends WorkerHelper implements MasmQueryWorker {
+public class MasmQueryWorkerImpl extends WorkerHelper implements MasmQueryWorker<Transaction> {
 
     private final TransactionUpdatesGenerator transactionUpdatesGenerator;
-    private final TransactionsDAO dao;
+    private final MasmUpdateWorker<Transaction> transactionMasmUpdateWorker;
+    private final TransactionsDAO transactionsDAO;
+    private final Connection connection;
 
-    public MasmQueryWorkerImpl(TransactionUpdatesGenerator transactionUpdatesGenerator, MySQLDatabase db) {
+    private final BlockingQueue<MasmQueryDescriptor<Transaction>> queuedMasmQueries;
+
+    public MasmQueryWorkerImpl(
+            TransactionUpdatesGenerator transactionUpdatesGenerator,
+            MasmUpdateWorker<Transaction> transactionMasmUpdateWorker, MySQLDatabase database) throws SQLException {
+
+        this.queuedMasmQueries = new ArrayBlockingQueue<>(10);
         this.transactionUpdatesGenerator = transactionUpdatesGenerator;
-        this.dao = db.getTransactions();
+        this.transactionMasmUpdateWorker = transactionMasmUpdateWorker;
+        this.connection = database.getConnection();
+        this.transactionsDAO = database.getTransactions();
     }
 
     @Override
@@ -34,25 +43,56 @@ public class MasmQueryWorkerImpl<TUpdateDescriptor, TDao extends Table<TUpdateDe
     }
 
     @Override
-    protected void doOperation() throws InterruptedException {
+    public void queueQuery(MasmQueryDescriptor<Transaction> masmUpdateDescriptor) {
         try {
-            try(Connection connection = MySQLDatabase.getConnection()) {
-                //query processing...
-                //fetch from updates buffer
-                //merge
-                Transaction transaction = new Transaction();
-                int id = dao.insert(connection, transaction);
-                transactionUpdatesGenerator.addTransactionId(id);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+            queuedMasmQueries.put(masmUpdateDescriptor);
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            logger.error("Terminated MasmUpdateWorker's task.", ex);
         }
     }
 
     @Override
-    public MasmQueryResponseDescriptor queryMasm(MasmQueryDescriptor masmQueryDescriptor) {
+    protected void doOperation() throws InterruptedException {
 
-        // TODO - Create a mechanism of handling queries
-        return null;
+        MasmQueryDescriptor<Transaction> queryDescriptor = queuedMasmQueries.take();
+
+        List<MasmUpdateDescriptor<Transaction>> updateDescriptors =  transactionMasmUpdateWorker.getMasmUpdateDescriptors();
+
+        for(MasmUpdateDescriptor<Transaction> updateDescriptor : updateDescriptors) {
+            try {
+                switch (updateDescriptor.getUpdateType()) {
+                    case INSERT:
+                        int id = transactionsDAO.insert(connection, updateDescriptor.getModel());
+                        transactionUpdatesGenerator.addTransactionId(id);
+                        break;
+                    case UPDATE:
+                        transactionsDAO.update(connection, updateDescriptor.getModel());
+                        break;
+                    case DELETE:
+                        transactionsDAO.delete(connection, updateDescriptor.getModel().getId());
+                        break;
+                    default: {
+                        throw new EnumConstantNotPresentException(UpdateType.class, updateDescriptor.getUpdateType().toString());
+                    }
+                }
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        switch (queryDescriptor.getQueryType()) {
+            case GET_ALL:
+                try {
+                    transactionsDAO.selectAll(connection);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                break;
+            default: {
+                throw new EnumConstantNotPresentException(QueryType.class, queryDescriptor.getQueryType().toString());
+            }
+        }
     }
 }

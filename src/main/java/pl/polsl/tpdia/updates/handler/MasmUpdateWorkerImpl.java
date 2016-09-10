@@ -1,30 +1,27 @@
 package pl.polsl.tpdia.updates.handler;
 
-import pl.polsl.tpdia.dao.Table;
 import pl.polsl.tpdia.helpers.WorkerHelper;
 import pl.polsl.tpdia.updates.MasmUpdateDescriptor;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-/**
- * Created by Szymon on 29.08.2016.
- */
-public class MasmUpdateWorkerImpl<TUpdateDescriptor, TDao extends Table<TUpdateDescriptor>>
-        extends WorkerHelper implements MasmUpdateWorker<TUpdateDescriptor, TDao> {
+public class MasmUpdateWorkerImpl<TModel>
+        extends WorkerHelper implements MasmUpdateWorker<TModel> {
 
-    private final BlockingQueue<MasmUpdateDescriptor<TUpdateDescriptor, TDao>> queuedMasmUpdates;
-    private final List<MasmUpdateDescriptor<TUpdateDescriptor, TDao>> masmUpdateDescriptors;
+    private final BlockingQueue<MasmUpdateDescriptor<TModel>> queuedMasmUpdates;
+    private final List<MasmUpdateDescriptor<TModel>> masmUpdateDescriptors;
 
     public MasmUpdateWorkerImpl() {
         this.queuedMasmUpdates = new ArrayBlockingQueue<>(10);
-        this.masmUpdateDescriptors = new ArrayList<>();
+        this.masmUpdateDescriptors = Collections.synchronizedList(new ArrayList<>());
     }
 
     @Override
-    public void queueUpdate(MasmUpdateDescriptor<TUpdateDescriptor, TDao> masmUpdateDescriptor) {
+    public void queueUpdate(MasmUpdateDescriptor<TModel> masmUpdateDescriptor) {
         try {
             queuedMasmUpdates.put(masmUpdateDescriptor);
         } catch (InterruptedException ex) {
@@ -41,8 +38,13 @@ public class MasmUpdateWorkerImpl<TUpdateDescriptor, TDao extends Table<TUpdateD
     @Override
     public void doOperation() throws InterruptedException {
 
-        MasmUpdateDescriptor<TUpdateDescriptor, TDao> updateDescriptor = queuedMasmUpdates.take();
+        MasmUpdateDescriptor<TModel> updateDescriptor = queuedMasmUpdates.take();
         masmUpdateDescriptors.add(updateDescriptor);
+    }
+
+    @Override
+    public List<MasmUpdateDescriptor<TModel>> getMasmUpdateDescriptors() {
+        return masmUpdateDescriptors;
     }
 }
 
