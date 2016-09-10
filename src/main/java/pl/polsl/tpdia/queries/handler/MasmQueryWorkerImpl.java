@@ -1,5 +1,7 @@
 package pl.polsl.tpdia.queries.handler;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pl.polsl.tpdia.dao.MySQLDatabase;
 import pl.polsl.tpdia.dao.TransactionsDAO;
 import pl.polsl.tpdia.helpers.WorkerHelper;
@@ -18,6 +20,8 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 public class MasmQueryWorkerImpl extends WorkerHelper implements MasmQueryWorker<Transaction> {
+
+    private static final Logger logger = LogManager.getLogger(MasmQueryWorkerImpl.class.getName());
 
     private final TransactionUpdatesGenerator transactionUpdatesGenerator;
     private final MasmUpdateWorker<Transaction> transactionMasmUpdateWorker;
@@ -57,9 +61,9 @@ public class MasmQueryWorkerImpl extends WorkerHelper implements MasmQueryWorker
 
         MasmQueryDescriptor<Transaction> queryDescriptor = queuedMasmQueries.take();
 
-        List<MasmUpdateDescriptor<Transaction>> updateDescriptors =  transactionMasmUpdateWorker.getMasmUpdateDescriptors();
+        List<MasmUpdateDescriptor<Transaction>> updateDescriptors = transactionMasmUpdateWorker.getMasmUpdateDescriptors();
 
-        for(MasmUpdateDescriptor<Transaction> updateDescriptor : updateDescriptors) {
+        for (MasmUpdateDescriptor<Transaction> updateDescriptor : updateDescriptors) {
             try {
                 switch (updateDescriptor.getUpdateType()) {
                     case INSERT:
@@ -82,17 +86,22 @@ public class MasmQueryWorkerImpl extends WorkerHelper implements MasmQueryWorker
             }
         }
 
-        switch (queryDescriptor.getQueryType()) {
-            case GET_ALL:
-                try {
-                    transactionsDAO.selectAll(connection);
-                } catch (SQLException e) {
-                    e.printStackTrace();
+        List<Transaction> listOfResults = null;
+
+        try {
+            switch (queryDescriptor.getQueryType()) {
+                case GET_ALL: {
+                    listOfResults = transactionsDAO.selectAll(connection);
+                    break;
                 }
-                break;
-            default: {
-                throw new EnumConstantNotPresentException(QueryType.class, queryDescriptor.getQueryType().toString());
+                default: {
+                    throw new EnumConstantNotPresentException(QueryType.class, queryDescriptor.getQueryType().toString());
+                }
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+
+        logger.debug(listOfResults != null ? listOfResults.size() : "NULL LIST OF RESULTS");
     }
 }
