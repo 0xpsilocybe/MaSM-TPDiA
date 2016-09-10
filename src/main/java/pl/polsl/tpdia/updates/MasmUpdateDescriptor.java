@@ -4,7 +4,7 @@ import pl.polsl.tpdia.models.UpdateType;
 
 import java.sql.Timestamp;
 
-public abstract class MasmUpdateDescriptor<TModel>{
+public abstract class MasmUpdateDescriptor<TModel> {
 
     protected TModel model;
 
@@ -16,9 +16,6 @@ public abstract class MasmUpdateDescriptor<TModel>{
         this.timestamp = new Timestamp(new java.util.Date().getTime());
         this.updateType = updateType;
     }
-    public UpdateType getUpdateType() {
-        return updateType;
-    }
 
     public TModel getModel() {
         return model;
@@ -26,5 +23,21 @@ public abstract class MasmUpdateDescriptor<TModel>{
 
     public void setModel(TModel model) {
         this.model = model;
+    }
+
+    public UpdateType getUpdateType() {
+        return updateType;
+    }
+
+    public Timestamp getTimestamp() {
+        return this.timestamp;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%1$10s: %2$10s, %3$TT",
+                this.getModel().getClass().getName(),
+                this.getUpdateType().toString(),
+                this.getTimestamp());
     }
 }

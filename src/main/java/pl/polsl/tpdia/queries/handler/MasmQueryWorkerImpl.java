@@ -26,18 +26,16 @@ public class MasmQueryWorkerImpl extends WorkerHelper implements MasmQueryWorker
     private final TransactionUpdatesGenerator transactionUpdatesGenerator;
     private final MasmUpdateWorker<Transaction> transactionMasmUpdateWorker;
     private final TransactionsDAO transactionsDAO;
-    private final Connection connection;
 
     private final BlockingQueue<MasmQueryDescriptor<Transaction>> queuedMasmQueries;
 
     public MasmQueryWorkerImpl(
             TransactionUpdatesGenerator transactionUpdatesGenerator,
             MasmUpdateWorker<Transaction> transactionMasmUpdateWorker, MySQLDatabase database) throws SQLException {
-
+        super("Query handler");
         this.queuedMasmQueries = new ArrayBlockingQueue<>(10);
         this.transactionUpdatesGenerator = transactionUpdatesGenerator;
         this.transactionMasmUpdateWorker = transactionMasmUpdateWorker;
-        this.connection = database.getConnection();
         this.transactionsDAO = database.getTransactions();
     }
 
@@ -49,6 +47,7 @@ public class MasmQueryWorkerImpl extends WorkerHelper implements MasmQueryWorker
     @Override
     public void queueQuery(MasmQueryDescriptor<Transaction> masmUpdateDescriptor) {
         try {
+            logger.trace("Adding query to queue: " + masmUpdateDescriptor.toString());
             queuedMasmQueries.put(masmUpdateDescriptor);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
@@ -58,50 +57,56 @@ public class MasmQueryWorkerImpl extends WorkerHelper implements MasmQueryWorker
 
     @Override
     protected void doOperation() throws InterruptedException {
-
         MasmQueryDescriptor<Transaction> queryDescriptor = queuedMasmQueries.take();
-
         List<MasmUpdateDescriptor<Transaction>> updateDescriptors = transactionMasmUpdateWorker.getMasmUpdateDescriptors();
-
-        for (MasmUpdateDescriptor<Transaction> updateDescriptor : updateDescriptors) {
-            try {
-                switch (updateDescriptor.getUpdateType()) {
-                    case INSERT:
-                        int id = transactionsDAO.insert(connection, updateDescriptor.getModel());
-                        transactionUpdatesGenerator.addTransactionId(id);
-                        break;
-                    case UPDATE:
-                        transactionsDAO.update(connection, updateDescriptor.getModel());
-                        break;
-                    case DELETE:
-                        transactionsDAO.delete(connection, updateDescriptor.getModel().getId());
-                        break;
-                    default: {
-                        throw new EnumConstantNotPresentException(UpdateType.class, updateDescriptor.getUpdateType().toString());
+        try {
+            try (Connection connection = MySQLDatabase.getConnection()) {
+                connection.setAutoCommit(false);
+                for (MasmUpdateDescriptor<Transaction> updateDescriptor : updateDescriptors) {
+                    switch (updateDescriptor.getUpdateType()) {
+                        case INSERT:
+                            logger.trace("Processing INSERT operation.");
+                            int id = transactionsDAO.insert(connection, updateDescriptor.getModel());
+                            transactionUpdatesGenerator.addTransactionId(id);
+                            break;
+                        case UPDATE:
+                            logger.trace("Processing UPDATE operation.");
+                            transactionsDAO.update(connection, updateDescriptor.getModel());
+                            break;
+                        case DELETE:
+                            logger.trace("Processing DELETE operation.");
+                            transactionsDAO.delete(connection, updateDescriptor.getModel().getId());
+                            break;
+                        default: {
+                            throw new EnumConstantNotPresentException(UpdateType.class, updateDescriptor.getUpdateType().toString());
+                        }
                     }
                 }
-
-            } catch (SQLException e) {
-                e.printStackTrace();
+                connection.commit();
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            logger.error(e);
         }
-
         List<Transaction> listOfResults = null;
 
         try {
-            switch (queryDescriptor.getQueryType()) {
-                case GET_ALL: {
-                    listOfResults = transactionsDAO.selectAll(connection);
-                    break;
-                }
-                default: {
-                    throw new EnumConstantNotPresentException(QueryType.class, queryDescriptor.getQueryType().toString());
+            try (Connection connection = MySQLDatabase.getConnection()) {
+                switch (queryDescriptor.getQueryType()) {
+                    case GET_ALL: {
+                        logger.trace("Processing GET_ALL operation.");
+                        listOfResults = transactionsDAO.selectAll(connection);
+                        break;
+                    }
+                    default: {
+                        throw new EnumConstantNotPresentException(QueryType.class, queryDescriptor.getQueryType().toString());
+                    }
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        logger.debug(listOfResults != null ? listOfResults.size() : "NULL LIST OF RESULTS");
+        logger.debug(listOfResults != null ? listOfResults.size() : "EMPTY LIST OF RESULTS");
     }
 }
