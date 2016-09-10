@@ -9,7 +9,6 @@ import java.util.List;
 
 /**
  * Accounts table specific database api definitions
- * @author Psilo
  */
 public interface AccountsDAO extends Table<Account> {
     boolean createForeignKey(Connection connection) throws SQLException;

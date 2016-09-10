@@ -8,7 +8,6 @@ import java.security.SecureRandom;
 
 /**
  * Random transaction generator
- * Created by Psilo on 06.09.2016.
  */
 public class TransactionGenerator extends Generator<Transaction> {
     private EnumGenerator<TransactionType> transactionTypeGenerator;

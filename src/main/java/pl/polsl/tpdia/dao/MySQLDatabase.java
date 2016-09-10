@@ -8,7 +8,6 @@ import java.sql.*;
 
 /**
  * MySQL database manager
- * Created by Psilo on 26.08.2016.
  */
 public class MySQLDatabase {
     private static DataSource dataSource;

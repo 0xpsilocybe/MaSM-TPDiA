@@ -8,8 +8,6 @@ import java.util.List;
 
 /**
  * MySQL implementation of AccountHoldersDAO
- *
- * @author Psilo
  */
 class AccountHolders implements AccountHoldersDAO {
     private final String TableName = "AccountHolders";

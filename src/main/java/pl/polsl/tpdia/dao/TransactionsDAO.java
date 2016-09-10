@@ -8,7 +8,6 @@ import java.util.List;
 
 /**
  * Transactions table specific database api definitions
- * @author Psilo
  */
 public interface TransactionsDAO extends Table<Transaction> {
     boolean createForeignKey(Connection connection) throws SQLException;

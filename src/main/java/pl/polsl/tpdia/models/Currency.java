@@ -2,7 +2,6 @@ package pl.polsl.tpdia.models;
 
 /**
  * Currencies supported by bank
- * ISO 4217 Currency Codes
  */
 public enum Currency {
     PLN("PLN"), EUR("EUR"), USD("USD"), GBP("GBP"), CHF("CHF");

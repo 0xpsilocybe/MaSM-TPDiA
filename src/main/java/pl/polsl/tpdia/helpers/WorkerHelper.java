@@ -3,10 +3,8 @@ package pl.polsl.tpdia.helpers;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-
 /**
  * Base worker
- * Created by Szymon on 29.08.2016.
  */
 public abstract class WorkerHelper implements Runnable {
     protected static final Logger logger = LogManager.getLogger(WorkerHelper.class.getName());

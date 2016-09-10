@@ -14,13 +14,13 @@ import java.util.List;
 
 public class TransactionUpdatesGenerator extends WorkerHelper {
 
-    private final MasmUpdateWorker masmUpdateWorker;
+    private final MasmUpdateWorker<Transaction> masmUpdateWorker;
     private final List<Integer> transactionIds;
     private final TransactionGenerator transactionGenerator;
     private final SecureRandom secureRandom;
     private final EnumGenerator<UpdateType> updateTypeGenerator;
 
-    public TransactionUpdatesGenerator(MasmUpdateWorker masmUpdateWorker, List<Integer> transactionIds) {
+    public TransactionUpdatesGenerator(MasmUpdateWorker<Transaction> masmUpdateWorker, List<Integer> transactionIds) {
         this.masmUpdateWorker = masmUpdateWorker;
         this.transactionIds = transactionIds;
         this.secureRandom = new SecureRandom();

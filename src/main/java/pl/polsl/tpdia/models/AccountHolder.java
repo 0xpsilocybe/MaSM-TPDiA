@@ -4,7 +4,6 @@ import java.sql.Date;
 
 /**
  * Account holder database model
- * @author Psilo
  */
 public class AccountHolder implements java.io.Serializable {
     private int id;

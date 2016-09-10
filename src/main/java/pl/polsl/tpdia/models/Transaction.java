@@ -5,7 +5,6 @@ import java.sql.Date;
 
 /**
  * Transaction database model
- * @author Psilo
  */
 public class Transaction implements java.io.Serializable {
     private int id;

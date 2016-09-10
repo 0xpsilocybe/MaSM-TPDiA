@@ -2,7 +2,6 @@ package pl.polsl.tpdia.models;
 
 /**
  * Account types
- * Created by Psilo on 06.09.2016.
  */
 public enum AccountType {
     Checking("Checking account"),

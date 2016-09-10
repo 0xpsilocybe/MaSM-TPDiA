@@ -8,8 +8,6 @@ import java.util.List;
 
 /**
  * MySQL implementation of TransactionsDAO
- *
- * @author Psilo
  */
 class Transactions implements TransactionsDAO {
     private final String TableName = "Transactions";

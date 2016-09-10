@@ -2,7 +2,6 @@ package pl.polsl.tpdia.models;
 
 /**
  * Transaction types
- * @author Psilo
  */
 public enum TransactionType {
     ATM("ATM"), /** Deposit or withdraw funds using an ATM */

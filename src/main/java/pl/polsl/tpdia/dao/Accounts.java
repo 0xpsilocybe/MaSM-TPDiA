@@ -9,8 +9,6 @@ import java.util.List;
 
 /**
  * MySQL implementation of AccountsDAO
- *
- * @author Psilo
  */
 class Accounts implements AccountsDAO {
     private final String TableName = "Accounts";

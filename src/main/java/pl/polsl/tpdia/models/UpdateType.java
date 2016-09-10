@@ -1,7 +1,7 @@
 package pl.polsl.tpdia.models;
 
 /**
- * Created by Szymon on 07.09.2016.
+ * Type of update on DB
  */
 public enum UpdateType {
     INSERT,

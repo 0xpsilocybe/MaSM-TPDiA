@@ -46,7 +46,7 @@ public class Main {
             (new Thread(transactionMasmUpdateWorker)).start();
             (new Thread(transactionUpdatesGenerator)).start();
 
-            MasmQueryWorker transactionMasmQueryWorker = new MasmQueryWorkerImpl(transactionUpdatesGenerator, transactionMasmUpdateWorker, database);
+            MasmQueryWorker<Transaction> transactionMasmQueryWorker = new MasmQueryWorkerImpl(transactionUpdatesGenerator, transactionMasmUpdateWorker, database);
             QueriesGenerator transactionQueriesGenerator = new QueriesGenerator(transactionMasmQueryWorker);
 
             (new Thread(transactionMasmQueryWorker)).start();

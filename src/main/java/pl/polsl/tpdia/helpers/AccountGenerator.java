@@ -7,7 +7,6 @@ import pl.polsl.tpdia.models.Currency;
 import java.math.BigDecimal;
 import java.security.SecureRandom;
 
-
 /**
  * Random account generator
  */
