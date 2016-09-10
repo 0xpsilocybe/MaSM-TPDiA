@@ -1,7 +1,9 @@
 package pl.polsl.tpdia.updates.generator;
 
 import pl.polsl.tpdia.helpers.EnumGenerator;
+import pl.polsl.tpdia.helpers.Generator;
 import pl.polsl.tpdia.helpers.TransactionGenerator;
+import pl.polsl.tpdia.models.Model;
 import pl.polsl.tpdia.models.UpdateType;
 import pl.polsl.tpdia.helpers.WorkerHelper;
 import pl.polsl.tpdia.models.Transaction;
@@ -12,19 +14,19 @@ import pl.polsl.tpdia.updates.handler.impl.transaction.TransactionMasmUpdateDesc
 import java.security.SecureRandom;
 import java.util.List;
 
-public class TransactionUpdatesGenerator extends WorkerHelper {
+public class UpdatesGenerator<TModel extends Model, TGenerator extends Generator<TModel>> extends WorkerHelper {
 
-    private final MasmUpdateWorker<Transaction> masmUpdateWorker;
+    private final MasmUpdateWorker<TModel> masmUpdateWorker;
     private final List<Integer> transactionIds;
-    private final TransactionGenerator transactionGenerator;
+    private final Generator<TModel> transactionGenerator;
     private final SecureRandom secureRandom;
     private final EnumGenerator<UpdateType> updateTypeGenerator;
 
-    public TransactionUpdatesGenerator(MasmUpdateWorker<Transaction> masmUpdateWorker, List<Integer> transactionIds) {
+    public UpdatesGenerator(MasmUpdateWorker<TModel> masmUpdateWorker, List<Integer> transactionIds) {
         this.masmUpdateWorker = masmUpdateWorker;
         this.transactionIds = transactionIds;
         this.secureRandom = new SecureRandom();
-        this.transactionGenerator = new TransactionGenerator(this.secureRandom);
+        this.transactionGenerator = new TGenerator(this.secureRandom);
         this.updateTypeGenerator = new EnumGenerator<>(UpdateType.INSERT, this.secureRandom);
     }
 
@@ -41,9 +43,9 @@ public class TransactionUpdatesGenerator extends WorkerHelper {
     protected void doOperation() throws InterruptedException {
 
         UpdateType updateType = updateTypeGenerator.generate();
-        MasmUpdateDescriptor<Transaction> descriptor = new TransactionMasmUpdateDescriptor(updateType);
+        MasmUpdateDescriptor<TModel> descriptor = new MasmUpdateDescriptor<>(updateType);
 
-        Transaction transaction;
+        TModel transaction;
 
         switch(updateType) {
             case INSERT: {
@@ -58,7 +60,7 @@ public class TransactionUpdatesGenerator extends WorkerHelper {
             }
             case DELETE: {
                 int index = secureRandom.nextInt(transactionIds.size());
-                transaction = new Transaction();
+                transaction = new TModel();
                 transaction.setId(transactionIds.get(index));
                 transactionIds.remove(index);
                 break;
