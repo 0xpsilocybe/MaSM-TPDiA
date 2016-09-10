@@ -8,8 +8,6 @@ import java.util.List;
 
 /**
  * MySQL implementation of AccountHoldersDAO
- *
- * @author Psilo
  */
 class AccountHolders implements AccountHoldersDAO {
     private final String TableName = "AccountHolders";
@@ -21,9 +19,9 @@ class AccountHolders implements AccountHoldersDAO {
                         "Id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,\n" +
                         "FirstName VARCHAR(30) NOT NULL,\n" +
                         "LastName VARCHAR(40) NOT NULL,\n" +
-                        "Email VARCHAR(50),\n" +
-                        "BirthDate TIMESTAMP,\n" +
-                        "RegistrationDate TIMESTAMP\n" +
+                        "Email VARCHAR(100),\n" +
+                        "BirthDate DATE,\n" +
+                        "RegistrationDate DATE\n" +
                         ")",
                 TableName);
         try (Statement statement = connection.createStatement()) {
@@ -83,8 +81,14 @@ class AccountHolders implements AccountHoldersDAO {
                 "INSERT INTO %1$s (FirstName, LastName, Email, BirthDate, RegistrationDate)\n" +
                         "VALUES (?, ?, ?, ?, ?);",
                 TableName);
-        try (PreparedStatement preparedStatement = MySQLDatabase.prepareStatement(connection, insertSQL, (ps) -> write(ps, item))) {
-            return preparedStatement.executeUpdate();
+        try (PreparedStatement preparedStatement = MySQLDatabase.prepareStatement(
+                connection, insertSQL, Statement.RETURN_GENERATED_KEYS, (ps) -> write(ps, item))) {
+            preparedStatement.executeUpdate();
+            ResultSet keys = preparedStatement.getGeneratedKeys();
+            if (keys.next()) {
+                return keys.getInt(1);
+            }
+            return -1;
         }
     }
 

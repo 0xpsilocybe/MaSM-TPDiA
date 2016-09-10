@@ -8,7 +8,6 @@ import java.sql.*;
 
 /**
  * MySQL database manager
- * Created by Psilo on 26.08.2016.
  */
 public class MySQLDatabase {
     private static DataSource dataSource;
@@ -86,6 +85,26 @@ public class MySQLDatabase {
             PreparedStatementSetter setter)
             throws SQLException {
         PreparedStatement statement = connection.prepareStatement(sql);
+        setter.setValues(statement);
+        return statement;
+    }
+
+    /**
+     * Prepares given SQL statement
+     * @param connection Connection to database
+     * @param sql String statement to prepare
+     * @param statementParam Identifier generated in database
+     * @param setter Exact implementation of statement setter for given sql
+     * @return Prepared statement with set variables
+     * @throws SQLException when some of the statements variables cannot be set
+     */
+    static PreparedStatement prepareStatement(
+            Connection connection,
+            String sql,
+            int statementParam,
+            PreparedStatementSetter setter)
+            throws SQLException {
+        PreparedStatement statement = connection.prepareStatement(sql, statementParam);
         setter.setValues(statement);
         return statement;
     }

@@ -8,8 +8,6 @@ import java.util.List;
 
 /**
  * MySQL implementation of TransactionsDAO
- *
- * @author Psilo
  */
 class Transactions implements TransactionsDAO {
     private final String TableName = "Transactions";
@@ -205,8 +203,14 @@ class Transactions implements TransactionsDAO {
                 "INSERT INTO %1$s (AccountFrom, AccountTo, Amount, PostingDate, Type)\n" +
                         "VALUES (?, ?, ?, ?, ?);",
                 TableName);
-        try (PreparedStatement preparedStatement = MySQLDatabase.prepareStatement(connection, insertSQL, (ps) -> write(ps, item))) {
-            return preparedStatement.executeUpdate();
+        try (PreparedStatement preparedStatement = MySQLDatabase.prepareStatement(
+                connection, insertSQL, Statement.RETURN_GENERATED_KEYS, (ps) -> write(ps, item))) {
+            preparedStatement.executeUpdate();
+            ResultSet keys = preparedStatement.getGeneratedKeys();
+            if (keys.next()) {
+                return keys.getInt(1);
+            }
+            return -1;
         }
     }
 

@@ -2,12 +2,12 @@ package pl.polsl.tpdia.updates.handler;
 
 import pl.polsl.tpdia.updates.MasmUpdateDescriptor;
 
-/**
- * Created by Szymon on 29.08.2016.
- */
-public interface MasmUpdateWorker {
+import java.util.List;
 
-    void queueUpdate(MasmUpdateDescriptor masmUpdateDescriptor);
+public interface MasmUpdateWorker<TModel> extends Runnable {
+
+    void queueUpdate(MasmUpdateDescriptor<TModel> masmUpdateDescriptor);
+    List<MasmUpdateDescriptor<TModel>> getMasmUpdateDescriptors();
     void run();
     void stop();
 }

@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 
 /**
  * Account database model
- * @author Psilo
  */
 public class Account implements java.io.Serializable {
     private int id;

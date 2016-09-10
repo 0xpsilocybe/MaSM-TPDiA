@@ -9,8 +9,6 @@ import java.util.List;
 
 /**
  * MySQL implementation of AccountsDAO
- *
- * @author Psilo
  */
 class Accounts implements AccountsDAO {
     private final String TableName = "Accounts";
@@ -22,7 +20,7 @@ class Accounts implements AccountsDAO {
                         "Id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,\n" +
                         "AccountHolder INT(6) UNSIGNED NOT NULL,\n" +
                         "Balance NUMERIC(15,2) NOT NULL,\n" +
-                        "Currency ENUM('PLN', 'EUR', 'USD', 'GBP', 'CHF'),\n" +
+                        "Currency VARCHAR(3),\n" +
                         "Type VARCHAR(25)\n" +
                         ")",
                 TableName);
@@ -151,8 +149,14 @@ class Accounts implements AccountsDAO {
                 "INSERT INTO %1$s (AccountHolder, Balance, Currency, Type)\n" +
                         "VALUES (?, ?, ?, ?);",
                 TableName);
-        try (PreparedStatement preparedStatement = MySQLDatabase.prepareStatement(connection, insertSQL, (ps) -> write(ps, item))) {
-            return preparedStatement.executeUpdate();
+        try (PreparedStatement preparedStatement = MySQLDatabase.prepareStatement(
+                connection, insertSQL, Statement.RETURN_GENERATED_KEYS, (ps) -> write(ps, item))) {
+            preparedStatement.executeUpdate();
+            ResultSet keys = preparedStatement.getGeneratedKeys();
+            if (keys.next()) {
+                return keys.getInt(1);
+            }
+            return -1;
         }
     }
 
