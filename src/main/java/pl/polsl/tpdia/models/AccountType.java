@@ -4,6 +4,7 @@ package pl.polsl.tpdia.models;
  * Account types
  */
 public enum AccountType {
+
     Checking("Checking account"),
     Savings("Savings account"),
     CD("Certificate of Deposit"),

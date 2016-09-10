@@ -1,7 +1,16 @@
 package pl.polsl.tpdia.updates.generator.impl;
 
-/**
- * Created by Szymon on 10.09.2016.
- */
-public class TransactionUpdatesGenerator {
+import pl.polsl.tpdia.helpers.TransactionGenerator;
+import pl.polsl.tpdia.updates.generator.UpdatesGenerator;
+import pl.polsl.tpdia.updates.handler.MasmUpdateWorker;
+
+import java.util.List;
+
+public class TransactionUpdatesGenerator extends UpdatesGenerator {
+
+    public TransactionUpdatesGenerator(MasmUpdateWorker masmUpdateWorker, List modelIds) {
+
+        super(masmUpdateWorker, modelIds);
+        this.modelGenerator = new TransactionGenerator(this.secureRandom);
+    }
 }

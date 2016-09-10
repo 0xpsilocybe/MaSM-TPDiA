@@ -53,6 +53,11 @@ public class AccountHolderGenerator extends Generator<AccountHolder> {
         }
     }
 
+    @Override
+    public AccountHolder getNew() {
+        return new AccountHolder();
+    }
+
     private AccountHolder create(ArrayList<String> firstNames, ArrayList<String> lastNames) {
         AccountHolder accountHolder = new AccountHolder();
         int firstNameIndex = random.nextInt(firstNames.size());

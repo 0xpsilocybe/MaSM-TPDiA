@@ -1,6 +1,7 @@
 package pl.polsl.tpdia.updates.handler;
 
 import pl.polsl.tpdia.helpers.WorkerHelper;
+import pl.polsl.tpdia.models.Model;
 import pl.polsl.tpdia.updates.MasmUpdateDescriptor;
 
 import java.util.ArrayList;
@@ -9,7 +10,7 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-public class MasmUpdateWorkerImpl<TModel>
+public class MasmUpdateWorkerImpl<TModel extends Model>
         extends WorkerHelper implements MasmUpdateWorker<TModel> {
 
     private final BlockingQueue<MasmUpdateDescriptor<TModel>> queuedMasmUpdates;

@@ -16,8 +16,9 @@ import pl.polsl.tpdia.models.AccountHolder;
 import pl.polsl.tpdia.models.Transaction;
 import pl.polsl.tpdia.queries.generator.QueriesGenerator;
 import pl.polsl.tpdia.queries.handler.MasmQueryWorker;
-import pl.polsl.tpdia.queries.handler.MasmQueryWorkerImpl;
-import pl.polsl.tpdia.updates.generator.TransactionUpdatesGenerator;
+import pl.polsl.tpdia.queries.handler.impl.TransactionMasmQueryWorkerImpl;
+import pl.polsl.tpdia.updates.generator.UpdatesGenerator;
+import pl.polsl.tpdia.updates.generator.impl.TransactionUpdatesGenerator;
 import pl.polsl.tpdia.updates.handler.MasmUpdateWorker;
 import pl.polsl.tpdia.updates.handler.MasmUpdateWorkerImpl;
 
@@ -41,13 +42,13 @@ public class Main {
             List<Integer> transactionIds = populateDbWithTestData(database);
 
             MasmUpdateWorker<Transaction> transactionMasmUpdateWorker = new MasmUpdateWorkerImpl<>();
-            TransactionUpdatesGenerator transactionUpdatesGenerator = new TransactionUpdatesGenerator(transactionMasmUpdateWorker, transactionIds);
+            UpdatesGenerator<Transaction> transactionUpdatesGenerator = new TransactionUpdatesGenerator(transactionMasmUpdateWorker, transactionIds);
 
             (new Thread(transactionMasmUpdateWorker)).start();
             (new Thread(transactionUpdatesGenerator)).start();
 
-            MasmQueryWorker<Transaction> transactionMasmQueryWorker = new MasmQueryWorkerImpl(transactionUpdatesGenerator, transactionMasmUpdateWorker, database);
-            QueriesGenerator transactionQueriesGenerator = new QueriesGenerator(transactionMasmQueryWorker);
+            MasmQueryWorker<Transaction> transactionMasmQueryWorker = new TransactionMasmQueryWorkerImpl(transactionUpdatesGenerator, transactionMasmUpdateWorker, database);
+            QueriesGenerator<Transaction> transactionQueriesGenerator = new QueriesGenerator<>(transactionMasmQueryWorker);
 
             (new Thread(transactionMasmQueryWorker)).start();
             (new Thread(transactionQueriesGenerator)).start();

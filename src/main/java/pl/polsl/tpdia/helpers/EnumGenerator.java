@@ -20,4 +20,9 @@ public class EnumGenerator<T extends Enum<T>> extends Generator<T> {
         int index = random.nextInt(size);
         return values[index];
     }
+
+    @Override
+    public T getNew() {
+        return null;
+    }
 }

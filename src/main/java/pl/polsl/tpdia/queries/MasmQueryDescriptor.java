@@ -1,13 +1,14 @@
 package pl.polsl.tpdia.queries;
 
+import pl.polsl.tpdia.models.Model;
 import pl.polsl.tpdia.models.QueryType;
 
 import java.sql.Timestamp;
 
-public abstract class MasmQueryDescriptor<TModel> {
+public class MasmQueryDescriptor<TModel extends Model> {
 
-    protected final Timestamp timestamp;
-    protected final QueryType queryType;
+    private final Timestamp timestamp;
+    private final QueryType queryType;
 
     public MasmQueryDescriptor(QueryType queryType) {
         this.timestamp = new Timestamp(new java.util.Date().getTime());

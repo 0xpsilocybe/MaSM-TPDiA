@@ -33,4 +33,9 @@ public class AccountGenerator extends Generator<Account> {
         account.setCurrency(currency.toString());
         return account;
     }
+
+    @Override
+    public Account getNew() {
+        return new Account();
+    }
 }

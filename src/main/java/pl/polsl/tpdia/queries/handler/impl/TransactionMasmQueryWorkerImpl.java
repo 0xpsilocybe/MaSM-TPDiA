@@ -9,9 +9,6 @@ import pl.polsl.tpdia.updates.handler.MasmUpdateWorker;
 
 import java.sql.SQLException;
 
-/**
- * Created by Szymon on 10.09.2016.
- */
 public class TransactionMasmQueryWorkerImpl extends MasmQueryWorkerImpl<Transaction, TransactionsDAO> {
 
     public TransactionMasmQueryWorkerImpl(

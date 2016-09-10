@@ -4,6 +4,7 @@ package pl.polsl.tpdia.models;
  * Transaction types
  */
 public enum TransactionType {
+
     ATM("ATM"), /** Deposit or withdraw funds using an ATM */
     Charge("Charge"), /** Record a purchase on a credit card or withdraw funds using a debit card */
     Check("Check"), /** Withdraw funds by writing a paper check */

@@ -1,21 +1,21 @@
 package pl.polsl.tpdia.queries.generator;
 
 import pl.polsl.tpdia.helpers.EnumGenerator;
+import pl.polsl.tpdia.models.Model;
 import pl.polsl.tpdia.models.QueryType;
-import pl.polsl.tpdia.models.Transaction;
+import pl.polsl.tpdia.queries.MasmQueryDescriptor;
 import pl.polsl.tpdia.queries.handler.MasmQueryWorker;
 import pl.polsl.tpdia.helpers.WorkerHelper;
-import pl.polsl.tpdia.queries.handler.impl.transaction.TransactionMasmQueryDescriptor;
 
 import java.security.SecureRandom;
 
-public class QueriesGenerator extends WorkerHelper {
+public class QueriesGenerator<TModel extends Model> extends WorkerHelper {
 
-    private final MasmQueryWorker<Transaction> masmQueryWorker;
+    private final MasmQueryWorker<TModel> masmQueryWorker;
     private final SecureRandom secureRandom;
     private final EnumGenerator<QueryType> queryTypeGenerator;
 
-    public QueriesGenerator(MasmQueryWorker<Transaction> masmQueryWorker) {
+    public QueriesGenerator(MasmQueryWorker<TModel> masmQueryWorker) {
         this.masmQueryWorker = masmQueryWorker;
         this.secureRandom = new SecureRandom();
         this.queryTypeGenerator = new EnumGenerator<>(QueryType.GET_ALL, this.secureRandom);
@@ -30,7 +30,7 @@ public class QueriesGenerator extends WorkerHelper {
     public void doOperation() throws InterruptedException {
 
         QueryType queryType = queryTypeGenerator.generate();
-        TransactionMasmQueryDescriptor queryDescriptor = new TransactionMasmQueryDescriptor(queryType);
+        MasmQueryDescriptor<TModel> queryDescriptor = new MasmQueryDescriptor<>(queryType);
 
         switch (queryType) {
             case GET_ALL: {

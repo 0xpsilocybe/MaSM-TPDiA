@@ -27,4 +27,9 @@ public class TransactionGenerator extends Generator<Transaction> {
         transaction.setType(type.toString());
         return transaction;
     }
+
+    @Override
+    public Transaction getNew() {
+        return new Transaction();
+    }
 }

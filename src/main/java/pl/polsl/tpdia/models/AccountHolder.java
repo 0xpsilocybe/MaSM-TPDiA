@@ -5,21 +5,13 @@ import java.sql.Date;
 /**
  * Account holder database model
  */
-public class AccountHolder implements java.io.Serializable {
-    private int id;
+public class AccountHolder extends Model implements java.io.Serializable {
+
     private String firstName;
     private String lastName;
     private String email;
     private Date registrationDate;
     private Date birthDate;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public String getFirstName() {
         return firstName;
