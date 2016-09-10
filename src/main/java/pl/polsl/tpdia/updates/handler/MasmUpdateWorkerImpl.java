@@ -4,10 +4,12 @@ import pl.polsl.tpdia.helpers.WorkerHelper;
 import pl.polsl.tpdia.updates.MasmUpdateDescriptor;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class MasmUpdateWorkerImpl<TModel>
         extends WorkerHelper implements MasmUpdateWorker<TModel> {
@@ -17,7 +19,7 @@ public class MasmUpdateWorkerImpl<TModel>
 
     public MasmUpdateWorkerImpl() {
         this.queuedMasmUpdates = new ArrayBlockingQueue<>(10);
-        this.masmUpdateDescriptors = Collections.synchronizedList(new ArrayList<>());
+        this.masmUpdateDescriptors = new CopyOnWriteArrayList<>();
     }
 
     @Override

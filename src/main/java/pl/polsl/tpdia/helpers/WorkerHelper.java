@@ -24,8 +24,8 @@ public abstract class WorkerHelper implements Runnable {
 
         try{
             while(!isStopRequested){
-                Thread.sleep(duration);
                 doOperation();
+                Thread.sleep(duration);
             }
         } catch(InterruptedException ex) {
             Thread.currentThread().interrupt();

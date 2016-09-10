@@ -1,5 +1,6 @@
 package pl.polsl.tpdia.queries.handler;
 
+import jdk.nashorn.internal.ir.Block;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pl.polsl.tpdia.dao.MySQLDatabase;
@@ -15,6 +16,7 @@ import pl.polsl.tpdia.updates.handler.MasmUpdateWorker;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -27,7 +29,7 @@ public class MasmQueryWorkerImpl extends WorkerHelper implements MasmQueryWorker
     private final MasmUpdateWorker<Transaction> transactionMasmUpdateWorker;
     private final TransactionsDAO transactionsDAO;
     private final Connection connection;
-
+    private final List<MasmUpdateDescriptor<Transaction>> updateDescriptors;
     private final BlockingQueue<MasmQueryDescriptor<Transaction>> queuedMasmQueries;
 
     public MasmQueryWorkerImpl(
@@ -39,6 +41,7 @@ public class MasmQueryWorkerImpl extends WorkerHelper implements MasmQueryWorker
         this.transactionMasmUpdateWorker = transactionMasmUpdateWorker;
         this.connection = database.getConnection();
         this.transactionsDAO = database.getTransactions();
+        this.updateDescriptors = transactionMasmUpdateWorker.getMasmUpdateDescriptors();
     }
 
     @Override
@@ -61,9 +64,8 @@ public class MasmQueryWorkerImpl extends WorkerHelper implements MasmQueryWorker
 
         MasmQueryDescriptor<Transaction> queryDescriptor = queuedMasmQueries.take();
 
-        List<MasmUpdateDescriptor<Transaction>> updateDescriptors = transactionMasmUpdateWorker.getMasmUpdateDescriptors();
+        for(MasmUpdateDescriptor<Transaction> updateDescriptor : new ArrayList<>(updateDescriptors)) {
 
-        for (MasmUpdateDescriptor<Transaction> updateDescriptor : updateDescriptors) {
             try {
                 switch (updateDescriptor.getUpdateType()) {
                     case INSERT:
@@ -80,6 +82,8 @@ public class MasmQueryWorkerImpl extends WorkerHelper implements MasmQueryWorker
                         throw new EnumConstantNotPresentException(UpdateType.class, updateDescriptor.getUpdateType().toString());
                     }
                 }
+
+                updateDescriptors.remove(updateDescriptor);
 
             } catch (SQLException e) {
                 e.printStackTrace();
