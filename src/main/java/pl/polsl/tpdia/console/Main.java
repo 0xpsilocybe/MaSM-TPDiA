@@ -7,10 +7,7 @@ import pl.polsl.tpdia.dao.AccountHoldersDAO;
 import pl.polsl.tpdia.dao.AccountsDAO;
 import pl.polsl.tpdia.dao.MySQLDatabase;
 import pl.polsl.tpdia.dao.TransactionsDAO;
-import pl.polsl.tpdia.helpers.AccountGenerator;
-import pl.polsl.tpdia.helpers.AccountHolderGenerator;
-import pl.polsl.tpdia.helpers.Generator;
-import pl.polsl.tpdia.helpers.TransactionGenerator;
+import pl.polsl.tpdia.helpers.*;
 import pl.polsl.tpdia.models.Account;
 import pl.polsl.tpdia.models.AccountHolder;
 import pl.polsl.tpdia.models.Transaction;
@@ -29,29 +26,35 @@ import java.util.List;
 
 public class Main {
     private static final Logger logger = LogManager.getLogger(Main.class.getName());
+    private static final int WORKER_THREAD_COUNT = 4;
 
     public static void main(String[] args) {
         try {
-            logger.trace("Application start");
+            logger.trace("TPDIA - MaSM - Started.");
 
-            logger.trace("Creating database");
+            logger.trace("Building up database. . .");
             MySQLDatabase database = new MySQLDatabase();
 
-            logger.trace("Populating database with random test data");
+            logger.trace("Populating database with random test data. . .");
             List<Integer> transactionIds = populateDbWithTestData(database);
 
+            Thread workerThreads[] = new Thread[WORKER_THREAD_COUNT];
             MasmUpdateWorker<Transaction> transactionMasmUpdateWorker = new MasmUpdateWorkerImpl<>();
+            workerThreads[0] = new Thread(transactionMasmUpdateWorker, "Transaction update handler");
+
             TransactionUpdatesGenerator transactionUpdatesGenerator = new TransactionUpdatesGenerator(transactionMasmUpdateWorker, transactionIds);
+            workerThreads[1] = new Thread(transactionUpdatesGenerator, "Transaction updates generator");
 
             MasmQueryWorker<Transaction> transactionMasmQueryWorker = new MasmQueryWorkerImpl(transactionUpdatesGenerator, transactionMasmUpdateWorker, database);
+            workerThreads[2] = new Thread(transactionMasmQueryWorker, "Queries handler");
+
             QueriesGenerator transactionQueriesGenerator = new QueriesGenerator(transactionMasmQueryWorker);
+            workerThreads[3] = new Thread(transactionQueriesGenerator, "Queries generator");
 
-            (new Thread(transactionMasmUpdateWorker)).start();
-            (new Thread(transactionUpdatesGenerator)).start();
-
-            (new Thread(transactionMasmQueryWorker)).start();
-            (new Thread(transactionQueriesGenerator)).start();
-
+            for (Thread thread : workerThreads) {
+                logger.trace("Starting " + thread.getName() + ". . .");
+                thread.start();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -65,13 +68,13 @@ public class Main {
 
     private static List<Integer> populateDbWithTestData(MySQLDatabase database) throws SQLException {
         SecureRandom random = new SecureRandom();
-        logger.trace("Creating random account holders");
+        logger.trace("Creating random account holders. . .");
         List<Integer> accountHoldersIds = createRandomAccountHolders(database, random);
 
-        logger.trace("Creating random accounts");
+        logger.trace("Creating random accounts. . .");
         List<Integer> accountsIds = createRandomAccountsForAccountHolders(database, random, accountHoldersIds);
 
-        logger.trace("Creating random transactions");
+        logger.trace("Creating random transactions. . .");
         return createRandomTransactionsForAccounts(database, random, accountsIds);
     }
 
@@ -118,7 +121,6 @@ public class Main {
     private static List<Integer> createRandomTransactionsForAccounts(MySQLDatabase database, SecureRandom random, List<Integer> accountsIds)
             throws SQLException {
         List<Integer> ids = new ArrayList<>();
-
         TransactionsDAO dao = database.getTransactions();
         Generator<Transaction> generator = new TransactionGenerator(random);
         try (Connection connection = MySQLDatabase.getConnection()) {

@@ -18,6 +18,7 @@ public class MasmUpdateWorkerImpl<TModel>
     private final List<MasmUpdateDescriptor<TModel>> masmUpdateDescriptors;
 
     public MasmUpdateWorkerImpl() {
+        super("Update handler");
         this.queuedMasmUpdates = new ArrayBlockingQueue<>(10);
         this.masmUpdateDescriptors = new CopyOnWriteArrayList<>();
     }
@@ -25,10 +26,11 @@ public class MasmUpdateWorkerImpl<TModel>
     @Override
     public void queueUpdate(MasmUpdateDescriptor<TModel> masmUpdateDescriptor) {
         try {
+            logger.trace("Adding update descriptor to queue: " + masmUpdateDescriptor.toString());
             queuedMasmUpdates.put(masmUpdateDescriptor);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
-            logger.error("Terminated MasmUpdateWorker's task.", ex);
+            logger.error("Terminated " + this.getWorkerName() + " task.", ex);
         }
     }
 
@@ -39,7 +41,6 @@ public class MasmUpdateWorkerImpl<TModel>
 
     @Override
     public void doOperation() throws InterruptedException {
-
         MasmUpdateDescriptor<TModel> updateDescriptor = queuedMasmUpdates.take();
         masmUpdateDescriptors.add(updateDescriptor);
     }

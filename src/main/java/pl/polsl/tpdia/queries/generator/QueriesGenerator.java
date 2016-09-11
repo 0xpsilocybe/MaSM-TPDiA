@@ -16,6 +16,7 @@ public class QueriesGenerator extends WorkerHelper {
     private final EnumGenerator<QueryType> queryTypeGenerator;
 
     public QueriesGenerator(MasmQueryWorker<Transaction> masmQueryWorker) {
+        super("Queries generator");
         this.masmQueryWorker = masmQueryWorker;
         this.secureRandom = new SecureRandom();
         this.queryTypeGenerator = new EnumGenerator<>(QueryType.GET_ALL, this.secureRandom);
@@ -28,7 +29,6 @@ public class QueriesGenerator extends WorkerHelper {
 
     @Override
     public void doOperation() throws InterruptedException {
-
         QueryType queryType = queryTypeGenerator.generate();
         TransactionMasmQueryDescriptor queryDescriptor = new TransactionMasmQueryDescriptor(queryType);
 

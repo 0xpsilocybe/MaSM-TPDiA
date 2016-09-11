@@ -11,6 +11,7 @@ import pl.polsl.tpdia.updates.handler.impl.transaction.TransactionMasmUpdateDesc
 
 import java.security.SecureRandom;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 public class TransactionUpdatesGenerator extends WorkerHelper {
 
@@ -20,7 +21,10 @@ public class TransactionUpdatesGenerator extends WorkerHelper {
     private final SecureRandom secureRandom;
     private final EnumGenerator<UpdateType> updateTypeGenerator;
 
-    public TransactionUpdatesGenerator(MasmUpdateWorker<Transaction> masmUpdateWorker, List<Integer> transactionIds) {
+    public TransactionUpdatesGenerator(
+            MasmUpdateWorker<Transaction> masmUpdateWorker,
+            List<Integer> transactionIds) {
+        super("Updates generator");
         this.masmUpdateWorker = masmUpdateWorker;
         this.transactionIds = transactionIds;
         this.secureRandom = new SecureRandom();
@@ -39,24 +43,25 @@ public class TransactionUpdatesGenerator extends WorkerHelper {
 
     @Override
     protected void doOperation() throws InterruptedException {
-
         UpdateType updateType = updateTypeGenerator.generate();
         MasmUpdateDescriptor<Transaction> descriptor = new TransactionMasmUpdateDescriptor(updateType);
-
         Transaction transaction;
 
         switch(updateType) {
             case INSERT: {
+                logger.trace("Generating transaction for INSERT.");
                 transaction = transactionGenerator.generate();
                 break;
             }
             case UPDATE: {
+                logger.trace("Generating transaction for UPDATE.");
                 int index = secureRandom.nextInt(transactionIds.size());
                 transaction = transactionGenerator.generate();
                 transaction.setId(transactionIds.get(index));
                 break;
             }
             case DELETE: {
+                logger.trace("Generating transaction for DELETE.");
                 int index = secureRandom.nextInt(transactionIds.size());
                 transaction = new Transaction();
                 transaction.setId(transactionIds.get(index));
