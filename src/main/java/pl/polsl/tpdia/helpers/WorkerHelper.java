@@ -3,8 +3,6 @@ package pl.polsl.tpdia.helpers;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import java.util.concurrent.CountDownLatch;
-
 /**
  * Base worker
  */

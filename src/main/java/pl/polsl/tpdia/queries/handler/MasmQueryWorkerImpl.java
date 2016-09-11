@@ -1,6 +1,5 @@
 package pl.polsl.tpdia.queries.handler;
 
-import jdk.nashorn.internal.ir.Block;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pl.polsl.tpdia.dao.MySQLDatabase;
@@ -28,9 +27,6 @@ public class MasmQueryWorkerImpl extends WorkerHelper implements MasmQueryWorker
     private final TransactionUpdatesGenerator transactionUpdatesGenerator;
     private final MasmUpdateWorker<Transaction> transactionMasmUpdateWorker;
     private final TransactionsDAO transactionsDAO;
-    private final Connection connection;
-    private final List<MasmUpdateDescriptor<Transaction>> updateDescriptors;
-
     private final BlockingQueue<MasmQueryDescriptor<Transaction>> queuedMasmQueries;
 
     public MasmQueryWorkerImpl(
@@ -41,7 +37,6 @@ public class MasmQueryWorkerImpl extends WorkerHelper implements MasmQueryWorker
         this.transactionUpdatesGenerator = transactionUpdatesGenerator;
         this.transactionMasmUpdateWorker = transactionMasmUpdateWorker;
         this.transactionsDAO = database.getTransactions();
-        this.updateDescriptors = transactionMasmUpdateWorker.getMasmUpdateDescriptors();
     }
 
     @Override
@@ -63,25 +58,27 @@ public class MasmQueryWorkerImpl extends WorkerHelper implements MasmQueryWorker
     @Override
     protected void doOperation() throws InterruptedException {
         MasmQueryDescriptor<Transaction> queryDescriptor = queuedMasmQueries.take();
-        List<MasmUpdateDescriptor<Transaction>> updateDescriptors = transactionMasmUpdateWorker.getMasmUpdateDescriptors();
         try {
             try (Connection connection = MySQLDatabase.getConnection()) {
                 connection.setAutoCommit(false);
-                for (MasmUpdateDescriptor<Transaction> updateDescriptor : new ArrayList<>(updateDescriptors)) {
+                for (MasmUpdateDescriptor<Transaction> updateDescriptor : new ArrayList<>(transactionMasmUpdateWorker.getMasmUpdateDescriptors(queryDescriptor.getTimestamp()))) {
                     switch (updateDescriptor.getUpdateType()) {
-                        case INSERT:
+                        case INSERT: {
                             logger.trace("Processing INSERT operation.");
                             int id = transactionsDAO.insert(connection, updateDescriptor.getModel());
                             transactionUpdatesGenerator.addTransactionId(id);
                             break;
-                        case UPDATE:
+                        }
+                        case UPDATE: {
                             logger.trace("Processing UPDATE operation.");
                             transactionsDAO.update(connection, updateDescriptor.getModel());
                             break;
-                        case DELETE:
+                        }
+                        case DELETE: {
                             logger.trace("Processing DELETE operation.");
                             transactionsDAO.delete(connection, updateDescriptor.getModel().getId());
                             break;
+                        }
                         default: {
                             throw new EnumConstantNotPresentException(UpdateType.class, updateDescriptor.getUpdateType().toString());
                         }
@@ -112,6 +109,8 @@ public class MasmQueryWorkerImpl extends WorkerHelper implements MasmQueryWorker
             e.printStackTrace();
         }
 
-        logger.debug(listOfResults != null ? listOfResults.size() : "EMPTY LIST OF RESULTS");
+        logger.debug(listOfResults != null ?
+                String.format("LIST OF RESULTS SIZE: %1$d", listOfResults.size()) :
+                "EMPTY LIST OF RESULTS");
     }
 }

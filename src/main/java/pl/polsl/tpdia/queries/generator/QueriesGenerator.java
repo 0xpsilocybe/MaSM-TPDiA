@@ -24,7 +24,7 @@ public class QueriesGenerator extends WorkerHelper {
 
     @Override
     public long getDelayBetweenOperations() {
-        return 100;
+        return 1000;
     }
 
     @Override

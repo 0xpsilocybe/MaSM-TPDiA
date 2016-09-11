@@ -35,8 +35,8 @@ public abstract class MasmUpdateDescriptor<TModel> {
 
     @Override
     public String toString() {
-        return String.format("%1$10s: %2$10s, %3$TT",
-                this.getModel().getClass().getName(),
+        return String.format("%1$10s: %2$6s, %3$TT",
+                this.getModel().getClass().getSimpleName(),
                 this.getUpdateType().toString(),
                 this.getTimestamp());
     }

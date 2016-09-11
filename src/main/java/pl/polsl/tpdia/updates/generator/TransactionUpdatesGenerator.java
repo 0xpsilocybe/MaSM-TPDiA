@@ -43,7 +43,11 @@ public class TransactionUpdatesGenerator extends WorkerHelper {
 
     @Override
     protected void doOperation() throws InterruptedException {
-        UpdateType updateType = updateTypeGenerator.generate();
+        UpdateType updateType = UpdateType.INSERT;
+        if (transactionIds.size() > 0) {
+            updateType = updateTypeGenerator.generate();
+        }
+
         MasmUpdateDescriptor<Transaction> descriptor = new TransactionMasmUpdateDescriptor(updateType);
         Transaction transaction;
 

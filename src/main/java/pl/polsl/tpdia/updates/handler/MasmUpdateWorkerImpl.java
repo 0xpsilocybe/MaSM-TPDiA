@@ -3,9 +3,9 @@ package pl.polsl.tpdia.updates.handler;
 import pl.polsl.tpdia.helpers.WorkerHelper;
 import pl.polsl.tpdia.updates.MasmUpdateDescriptor;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -15,7 +15,7 @@ public class MasmUpdateWorkerImpl<TModel>
         extends WorkerHelper implements MasmUpdateWorker<TModel> {
 
     private final BlockingQueue<MasmUpdateDescriptor<TModel>> queuedMasmUpdates;
-    private final List<MasmUpdateDescriptor<TModel>> masmUpdateDescriptors;
+    private final CopyOnWriteArrayList<MasmUpdateDescriptor<TModel>> masmUpdateDescriptors;
 
     public MasmUpdateWorkerImpl() {
         super("Update handler");
@@ -46,8 +46,17 @@ public class MasmUpdateWorkerImpl<TModel>
     }
 
     @Override
-    public List<MasmUpdateDescriptor<TModel>> getMasmUpdateDescriptors() {
-        return masmUpdateDescriptors;
+    public List<MasmUpdateDescriptor<TModel>> getMasmUpdateDescriptors(Timestamp limitTime) {
+        ArrayList<MasmUpdateDescriptor<TModel>> updates = new ArrayList<>();
+        for(MasmUpdateDescriptor<TModel> descriptor : this.masmUpdateDescriptors) {
+            if (limitTime.after(descriptor.getTimestamp())) {
+                updates.add(descriptor);
+            } else {
+                break;
+            }
+        }
+        this.masmUpdateDescriptors.removeAll(updates);
+        return updates;
     }
 }
 
