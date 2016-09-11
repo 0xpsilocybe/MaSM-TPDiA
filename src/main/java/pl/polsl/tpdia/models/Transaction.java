@@ -6,21 +6,13 @@ import java.sql.Date;
 /**
  * Transaction database model
  */
-public class Transaction implements java.io.Serializable {
-    private int id;
+public class Transaction extends Model implements java.io.Serializable {
+
     private int accountFromId;
     private int accountToId;
     private BigDecimal amount;
     private Date postingDate;
     private String type;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public int getAccountFromId() {
         return accountFromId;

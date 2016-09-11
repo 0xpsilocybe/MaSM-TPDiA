@@ -5,20 +5,12 @@ import java.math.BigDecimal;
 /**
  * Account database model
  */
-public class Account implements java.io.Serializable {
-    private int id;
+public class Account extends Model implements java.io.Serializable {
+
     private int accountHolderId;
     private BigDecimal balance;
     private String currency;
     private String type;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public int getAccountHolderId() {
         return accountHolderId;

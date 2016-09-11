@@ -1,8 +1,9 @@
 package pl.polsl.tpdia.queries;
 
+import pl.polsl.tpdia.models.Model;
 import java.util.List;
 
-public abstract class MasmQueryResponseDescriptor<TModel> {
+public class MasmQueryResponseDescriptor<TModel extends Model> {
 
     private final List<TModel> queryResults;
 

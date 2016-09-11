@@ -1,16 +1,17 @@
 package pl.polsl.tpdia.updates;
 
+import pl.polsl.tpdia.models.Model;
 import pl.polsl.tpdia.models.UpdateType;
 
 import java.sql.Timestamp;
 
-public abstract class MasmUpdateDescriptor<TModel> {
+public class MasmUpdateDescriptor<TModel extends Model>{
 
-    protected TModel model;
+    private TModel model;
 
-    protected final UpdateType updateType;
+    private final UpdateType updateType;
 
-    protected final Timestamp timestamp;
+    private final Timestamp timestamp;
 
     public MasmUpdateDescriptor(UpdateType updateType) {
         this.timestamp = new Timestamp(new java.util.Date().getTime());

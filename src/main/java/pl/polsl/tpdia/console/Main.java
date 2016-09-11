@@ -13,8 +13,9 @@ import pl.polsl.tpdia.models.AccountHolder;
 import pl.polsl.tpdia.models.Transaction;
 import pl.polsl.tpdia.queries.generator.QueriesGenerator;
 import pl.polsl.tpdia.queries.handler.MasmQueryWorker;
-import pl.polsl.tpdia.queries.handler.MasmQueryWorkerImpl;
-import pl.polsl.tpdia.updates.generator.TransactionUpdatesGenerator;
+import pl.polsl.tpdia.queries.handler.impl.TransactionMasmQueryWorkerImpl;
+import pl.polsl.tpdia.updates.generator.UpdatesGenerator;
+import pl.polsl.tpdia.updates.generator.impl.TransactionUpdatesGenerator;
 import pl.polsl.tpdia.updates.handler.MasmUpdateWorker;
 import pl.polsl.tpdia.updates.handler.MasmUpdateWorkerImpl;
 
@@ -42,13 +43,13 @@ public class Main {
             MasmUpdateWorker<Transaction> transactionMasmUpdateWorker = new MasmUpdateWorkerImpl<>();
             workerThreads[0] = new Thread(transactionMasmUpdateWorker, "Transaction update handler");
 
-            TransactionUpdatesGenerator transactionUpdatesGenerator = new TransactionUpdatesGenerator(transactionMasmUpdateWorker, transactionIds);
+            UpdatesGenerator<Transaction> transactionUpdatesGenerator = new TransactionUpdatesGenerator(transactionMasmUpdateWorker, transactionIds);
             workerThreads[1] = new Thread(transactionUpdatesGenerator, "Transaction updates generator");
 
-            MasmQueryWorker<Transaction> transactionMasmQueryWorker = new MasmQueryWorkerImpl(transactionUpdatesGenerator, transactionMasmUpdateWorker, database);
+            MasmQueryWorker<Transaction> transactionMasmQueryWorker = new TransactionMasmQueryWorkerImpl(transactionUpdatesGenerator, transactionMasmUpdateWorker, database);
             workerThreads[2] = new Thread(transactionMasmQueryWorker, "Queries handler");
 
-            QueriesGenerator transactionQueriesGenerator = new QueriesGenerator(transactionMasmQueryWorker);
+            QueriesGenerator<Transaction> transactionQueriesGenerator = new QueriesGenerator<>(transactionMasmQueryWorker);
             workerThreads[3] = new Thread(transactionQueriesGenerator, "Queries generator");
 
             for (Thread thread : workerThreads) {
