@@ -84,10 +84,11 @@ public class Main {
         List<Integer> ids = new ArrayList<>();
         AccountHoldersDAO dao = database.getAccountHolders();
         Generator<AccountHolder> generator = new AccountHolderGenerator(random);
+
         try (Connection connection = MySQLDatabase.getConnection()) {
             connection.setAutoCommit(false);
-            int accountHoldersCount = ACCOUNT_HOLDERS_COUNT;
-            for (int i = 0; i < accountHoldersCount; i++) {
+
+            for (int i = 0; i < ACCOUNT_HOLDERS_COUNT; i++) {
                 AccountHolder accountHolder = generator.generate();
                 Integer accountHolderId = dao.insert(connection, accountHolder);
                 ids.add(accountHolderId);

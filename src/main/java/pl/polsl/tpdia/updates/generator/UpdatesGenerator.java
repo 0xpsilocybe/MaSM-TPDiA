@@ -21,6 +21,7 @@ public abstract class UpdatesGenerator<TModel extends Model> extends WorkerHelpe
     public UpdatesGenerator(
             MasmUpdateWorker<TModel> masmUpdateWorker,
             List<Integer> modelIds) {
+        super("Updates Generator Worker");
 
         this.masmUpdateWorker = masmUpdateWorker;
         this.modelIds = modelIds;
@@ -40,7 +41,11 @@ public abstract class UpdatesGenerator<TModel extends Model> extends WorkerHelpe
     @Override
     protected void doOperation() throws InterruptedException {
 
-        UpdateType updateType = updateTypeGenerator.generate();
+        UpdateType updateType = UpdateType.INSERT;
+        if (modelIds.size() > 0) {
+            updateType = updateTypeGenerator.generate();
+        }
+
         MasmUpdateDescriptor<TModel> descriptor = new MasmUpdateDescriptor<>(updateType);
 
         TModel model;

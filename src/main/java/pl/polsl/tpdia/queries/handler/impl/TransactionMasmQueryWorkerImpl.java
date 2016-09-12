@@ -12,8 +12,8 @@ import java.sql.SQLException;
 public class TransactionMasmQueryWorkerImpl extends MasmQueryWorkerImpl<Transaction, TransactionsDAO> {
 
     public TransactionMasmQueryWorkerImpl(
-            UpdatesGenerator updatesGenerator,
-            MasmUpdateWorker masmUpdateWorker,
+            UpdatesGenerator<Transaction> updatesGenerator,
+            MasmUpdateWorker<Transaction> masmUpdateWorker,
             MySQLDatabase database) throws SQLException {
 
         super(updatesGenerator, masmUpdateWorker, database);

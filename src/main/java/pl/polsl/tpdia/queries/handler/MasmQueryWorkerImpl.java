@@ -63,7 +63,7 @@ public abstract class MasmQueryWorkerImpl<TModel extends Model, TDao extends Tab
 
         MasmQueryDescriptor<TModel> queryDescriptor = queuedMasmQueries.take();
 
-        List<MasmUpdateDescriptor<TModel>> updateDescriptors = masmUpdateWorker.getMasmUpdateDescriptors();
+        List<MasmUpdateDescriptor<TModel>> updateDescriptors = masmUpdateWorker.getMasmUpdateDescriptors(queryDescriptor.getTimestamp());
 
         for (MasmUpdateDescriptor<TModel> updateDescriptor : updateDescriptors) {
             try {
@@ -89,31 +89,32 @@ public abstract class MasmQueryWorkerImpl<TModel extends Model, TDao extends Tab
                     }
                 }
                 this.connection.commit();
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+                logger.error(e);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            logger.error(e);
-        }
 
-        List<TModel> listOfResults = null;
+            List<TModel> listOfResults = null;
 
-        try {
-            switch (queryDescriptor.getQueryType()) {
-                case GET_ALL: {
-                    logger.trace("Processing GET_ALL operation.");
-                    listOfResults = modelDAO.selectAll(connection);
-                    break;
+            try {
+                switch (queryDescriptor.getQueryType()) {
+                    case GET_ALL: {
+                        logger.trace("Processing GET_ALL operation.");
+                        listOfResults = modelDAO.selectAll(connection);
+                        break;
+                    }
+                    default: {
+                        throw new EnumConstantNotPresentException(QueryType.class, queryDescriptor.getQueryType().toString());
+                    }
                 }
-                default: {
-                    throw new EnumConstantNotPresentException(QueryType.class, queryDescriptor.getQueryType().toString());
-                }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
 
-        logger.debug(listOfResults != null ?
-                String.format("LIST OF RESULTS SIZE: %1$d", listOfResults.size()) :
-                "EMPTY LIST OF RESULTS");
+            logger.debug(listOfResults != null ?
+                    String.format("LIST OF RESULTS SIZE: %1$d", listOfResults.size()) :
+                    "EMPTY LIST OF RESULTS");
+        }
     }
 }
