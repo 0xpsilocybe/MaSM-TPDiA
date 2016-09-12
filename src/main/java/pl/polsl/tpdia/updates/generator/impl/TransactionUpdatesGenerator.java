@@ -9,7 +9,6 @@ import java.util.List;
 public class TransactionUpdatesGenerator extends UpdatesGenerator {
 
     public TransactionUpdatesGenerator(MasmUpdateWorker masmUpdateWorker, List modelIds) {
-
         super(masmUpdateWorker, modelIds);
         this.modelGenerator = new TransactionGenerator(this.secureRandom);
     }

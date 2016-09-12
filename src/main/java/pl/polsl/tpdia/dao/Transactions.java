@@ -10,53 +10,28 @@ import java.util.List;
  * MySQL implementation of TransactionsDAO
  */
 class Transactions implements TransactionsDAO {
-    private final String TableName = "Transactions";
-
     @Override
     public boolean create(Connection connection) throws SQLException {
-        String createSQL = String.format(
-                "CREATE TABLE %1$s (\n" +
-                        "Id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,\n" +
-                        "AccountFrom INT(6) UNSIGNED NOT NULL,\n" +
-                        "AccountTo INT(6) UNSIGNED NOT NULL,\n" +
-                        "Amount NUMERIC(15,2) NOT NULL,\n" +
-                        "PostingDate TIMESTAMP,\n" +
-                        "Type VARCHAR(10)\n" +
-                        ")",
-                TableName);
+        String createSQL =
+            "CREATE TABLE Transactions (\n" +
+                "Id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,\n" +
+                "AccountFrom INT(6) UNSIGNED NOT NULL,\n" +
+                "AccountTo INT(6) UNSIGNED NOT NULL,\n" +
+                "Amount NUMERIC(15,2) NOT NULL,\n" +
+                "PostingDate TIMESTAMP,\n" +
+                "Type VARCHAR(10)\n" +
+            ")";
         try (Statement statement = connection.createStatement()) {
             return statement.execute(createSQL);
         }
     }
 
-    public boolean createForeignKey(Connection connection) throws SQLException {
-        String accountFromForeignKeySQL = String.format(
-                "ALTER TABLE `%1$s`\n" +
-                        "ADD CONSTRAINT fk_AccFrom_Id\n" +
-                        "FOREIGN KEY (AccountFrom)\n" +
-                        "REFERENCES Accounts(Id)\n",
-                TableName);
-        String accountToForeignKeySQL = String.format(
-                "ALTER TABLE `%1$s`\n" +
-                        "ADD CONSTRAINT fk_AccTo_Id\n" +
-                        "FOREIGN KEY (AccountTo)\n" +
-                        "REFERENCES Accounts(Id)\n",
-                TableName);
-        try (Statement statement = connection.createStatement()) {
-            return (
-                    statement.execute(accountFromForeignKeySQL) &&
-                    statement.execute(accountToForeignKeySQL)
-            );
-        }
-    }
-
     @Override
     public Transaction selectById(Connection connection, int id) throws SQLException {
-        String selectSQL = String.format(
-                "SELECT Id, AccountFrom, AccountTo, Amount, PostingDate, Type\n" +
-                        "FROM %1$s\n" +
-                        "WHERE Id = ?",
-                TableName);
+        String selectSQL =
+            "SELECT Id, AccountFrom, AccountTo, Amount, PostingDate, Type\n" +
+            "FROM Transactions\n" +
+            "WHERE Id = ?";
         try (PreparedStatement preparedStatement = MySQLDatabase.prepareStatement(connection, selectSQL, (ps) -> ps.setInt(1, id))) {
             try (ResultSet result = preparedStatement.executeQuery()) {
                 if (result.next()) {
@@ -69,10 +44,9 @@ class Transactions implements TransactionsDAO {
 
     @Override
     public List<Transaction> selectAll(Connection connection) throws SQLException {
-        String selectSQL = String.format(
-                "SELECT Id, AccountFrom, AccountTo, Amount, PostingDate, Type\n" +
-                        "FROM %1$s",
-                TableName);
+        String selectSQL =
+            "SELECT Id, AccountFrom, AccountTo, Amount, PostingDate, Type\n" +
+            "FROM Transactions";
         try (Statement statement = connection.createStatement()) {
             try (ResultSet result = statement.executeQuery(selectSQL)) {
                 List<Transaction> transactions = new ArrayList<>();
@@ -87,12 +61,11 @@ class Transactions implements TransactionsDAO {
 
     @Override
     public List<Transaction> selectByAccountHolder(Connection connection, int accountHolderId) throws SQLException {
-        String selectSQL = String.format(
-                "SELECT t.Id, t.AccountFrom, t.AccountTo, t.Amount, t.PostingDate, t.Type\n" +
-                        "FROM %1$s t, %2$s a\n" +
-                        "WHERE (t.AccountFrom = a.Id AND a.AccountHolder = ?)\n" +
-                        "OR (t.AccountTo = a.Id AND a.AccountHolder = ?)",
-                TableName, "Accounts");
+        String selectSQL =
+            "SELECT t.Id, t.AccountFrom, t.AccountTo, t.Amount, t.PostingDate, t.Type\n" +
+            "FROM Transactions t, Accounts a\n" +
+            "WHERE (t.AccountFrom = a.Id AND a.AccountHolder = ?)\n" +
+            "OR (t.AccountTo = a.Id AND a.AccountHolder = ?)";
         try (PreparedStatement preparedStatement = MySQLDatabase.prepareStatement(connection, selectSQL, (ps) -> {
             ps.setInt(1, accountHolderId);
             ps.setInt(2, accountHolderId);
@@ -110,12 +83,11 @@ class Transactions implements TransactionsDAO {
 
     @Override
     public List<Transaction> selectAccountHolderIncoming(Connection connection, int accountHolderId) throws SQLException {
-        String selectSQL = String.format(
-                "SELECT t.Id, t.AccountFrom, t.AccountTo, t.Amount, t.PostingDate, t.Type\n" +
-                        "FROM %1$s t, %2$s a\n" +
-                        "WHERE t.AccountTo = a.Id\n" +
-                        "AND a.AccountHolder = ?",
-                TableName, "Accounts");
+        String selectSQL =
+            "SELECT t.Id, t.AccountFrom, t.AccountTo, t.Amount, t.PostingDate, t.Type\n" +
+            "FROM Transactions t, Accounts a\n" +
+            "WHERE t.AccountTo = a.Id\n" +
+            "AND a.AccountHolder = ?";
         try (PreparedStatement preparedStatement = MySQLDatabase.prepareStatement(connection, selectSQL, (ps) -> ps.setInt(1, accountHolderId))) {
             try (ResultSet result = preparedStatement.executeQuery()) {
                 List<Transaction> transactions = new ArrayList<>();
@@ -130,12 +102,11 @@ class Transactions implements TransactionsDAO {
 
     @Override
     public List<Transaction> selectAccountHolderOutcoming(Connection connection, int accountHolderId) throws SQLException {
-        String selectSQL = String.format(
-                "SELECT t.Id, t.AccountFrom, t.AccountTo, t.Amount, t.PostingDate, t.Type\n" +
-                        "FROM %1$s t, %2$s a\n" +
-                        "WHERE t.AccountFrom = a.Id\n" +
-                        "AND a.AccountHolder = ?",
-                TableName, "Accounts");
+        String selectSQL =
+            "SELECT t.Id, t.AccountFrom, t.AccountTo, t.Amount, t.PostingDate, t.Type\n" +
+            "FROM Transactions t, Accounts a\n" +
+            "WHERE t.AccountFrom = a.Id\n" +
+            "AND a.AccountHolder = ?";
         try (PreparedStatement preparedStatement = MySQLDatabase.prepareStatement(connection, selectSQL, (ps) -> ps.setInt(1, accountHolderId))) {
             try (ResultSet result = preparedStatement.executeQuery()) {
                 List<Transaction> transactions = new ArrayList<>();
@@ -150,11 +121,10 @@ class Transactions implements TransactionsDAO {
 
     @Override
     public List<Transaction> selectByDestinationAccount(Connection connection, int accountToId) throws SQLException {
-        String selectSQL = String.format(
-                "SELECT Id, AccountFrom, AccountTo, Amount, PostingDate, Type\n" +
-                        "FROM %1$s\n" +
-                        "WHERE AccountTo = ?",
-                TableName);
+        String selectSQL =
+            "SELECT Id, AccountFrom, AccountTo, Amount, PostingDate, Type\n" +
+            "FROM Transactions\n" +
+            "WHERE AccountTo = ?";
         try (PreparedStatement preparedStatement = MySQLDatabase.prepareStatement(connection, selectSQL, (ps) -> ps.setInt(1, accountToId))) {
             try (ResultSet result = preparedStatement.executeQuery()) {
                 List<Transaction> transactions = new ArrayList<>();
@@ -169,11 +139,10 @@ class Transactions implements TransactionsDAO {
 
     @Override
     public List<Transaction> selectBySourceAccount(Connection connection, int accountFromId) throws SQLException {
-        String selectSQL = String.format(
-                "SELECT Id, AccountFrom, AccountTo, Amount, PostingDate, Type\n" +
-                        "FROM %1$s\n" +
-                        "WHERE AccountFrom = ?",
-                TableName);
+        String selectSQL =
+            "SELECT Id, AccountFrom, AccountTo, Amount, PostingDate, Type\n" +
+            "FROM Transactions\n" +
+            "WHERE AccountFrom = ?";
         try (PreparedStatement preparedStatement = MySQLDatabase.prepareStatement(connection, selectSQL, (ps) -> ps.setInt(1, accountFromId))) {
             try (ResultSet result = preparedStatement.executeQuery()) {
                 List<Transaction> transactions = new ArrayList<>();
@@ -199,10 +168,9 @@ class Transactions implements TransactionsDAO {
 
     @Override
     public int insert(Connection connection, Transaction item) throws SQLException {
-        String insertSQL = String.format(
-                "INSERT INTO %1$s (AccountFrom, AccountTo, Amount, PostingDate, Type)\n" +
-                        "VALUES (?, ?, ?, ?, ?);",
-                TableName);
+        String insertSQL =
+            "INSERT INTO Transactions (AccountFrom, AccountTo, Amount, PostingDate, Type)\n" +
+            "VALUES (?, ?, ?, ?, ?);";
         try (PreparedStatement preparedStatement = MySQLDatabase.prepareStatement(
                 connection, insertSQL, Statement.RETURN_GENERATED_KEYS, (ps) -> write(ps, item))) {
             preparedStatement.executeUpdate();
@@ -216,11 +184,10 @@ class Transactions implements TransactionsDAO {
 
     @Override
     public boolean update(Connection connection, Transaction item) throws SQLException {
-        String updateSQL = String.format(
-                "UPDATE %1$s\n" +
-                        "SET AccountFrom = ?, AccountTo = ?, Amount = ?, PostingDate = ?, Type = ?\n" +
-                        "WHERE Id = ?",
-                TableName);
+        String updateSQL =
+            "UPDATE Transactions\n" +
+            "SET AccountFrom = ?, AccountTo = ?, Amount = ?, PostingDate = ?, Type = ?\n" +
+            "WHERE Id = ?";
         try (PreparedStatement preparedStatement = MySQLDatabase.prepareStatement(connection, updateSQL, (ps) -> {
             write(ps, item);
             ps.setInt(6, item.getId());
@@ -239,10 +206,9 @@ class Transactions implements TransactionsDAO {
 
     @Override
     public boolean delete(Connection connection, int id) throws SQLException {
-        String deleteSQL = String.format(
-                "DELETE FROM %1$s\n" +
-                        "WHERE Id = ?",
-                TableName);
+        String deleteSQL =
+            "DELETE FROM Transactions\n" +
+            "WHERE Id = ?";
         try (PreparedStatement preparedStatement = MySQLDatabase.prepareStatement(connection, deleteSQL, (ps) -> ps.setInt(1, id))) {
             return preparedStatement.execute();
         }

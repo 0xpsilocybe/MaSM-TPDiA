@@ -11,43 +11,27 @@ import java.util.List;
  * MySQL implementation of AccountsDAO
  */
 class Accounts implements AccountsDAO {
-    private final String TableName = "Accounts";
-
     @Override
     public boolean create(Connection connection) throws SQLException {
-        String createSQL = String.format(
-                "CREATE TABLE %1$s (\n" +
-                        "Id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,\n" +
-                        "AccountHolder INT(6) UNSIGNED NOT NULL,\n" +
-                        "Balance NUMERIC(15,2) NOT NULL,\n" +
-                        "Currency VARCHAR(3),\n" +
-                        "Type VARCHAR(25)\n" +
-                        ")",
-                TableName);
+        String createSQL =
+            "CREATE TABLE Accounts (\n" +
+                "Id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,\n" +
+                "AccountHolder INT(6) UNSIGNED NOT NULL,\n" +
+                "Balance NUMERIC(15,2) NOT NULL,\n" +
+                "Currency VARCHAR(3),\n" +
+                "Type VARCHAR(25)\n" +
+            ")";
         try (Statement statement = connection.createStatement()) {
             return statement.execute(createSQL);
         }
     }
 
-    public boolean createForeignKey(Connection connection) throws SQLException {
-        String accountHolderforeignKeySQL = String.format(
-                "ALTER TABLE `%1$s`\n" +
-                        "ADD CONSTRAINT fk_AccHold_Id\n" +
-                        "FOREIGN KEY (AccountHolder)\n" +
-                        "REFERENCES AccountHolders(Id)\n",
-                TableName);
-        try (Statement statement = connection.createStatement()) {
-            return statement.execute(accountHolderforeignKeySQL);
-        }
-    }
-
     @Override
     public Account selectById(Connection connection, int id) throws SQLException {
-        String selectSQL = String.format(
-                "SELECT Id, AccountHolder, Balance, Currency, Type\n" +
-                        "FROM %1$s\n" +
-                        "WHERE Id = ?",
-                TableName);
+        String selectSQL =
+            "SELECT Id, AccountHolder, Balance, Currency, Type\n" +
+            "FROM Accounts\n" +
+            "WHERE Id = ?";
         try (PreparedStatement preparedStatement = MySQLDatabase.prepareStatement(connection, selectSQL, (ps) -> ps.setInt(1, id))) {
             try (ResultSet result = preparedStatement.executeQuery()) {
                 if (result.next()) {
@@ -60,10 +44,9 @@ class Accounts implements AccountsDAO {
 
     @Override
     public List<Account> selectAll(Connection connection) throws SQLException {
-        String selectSQL = String.format(
-                "SELECT Id, AccountHolder, Balance, Currency, Type\n" +
-                        "FROM %1$s",
-                TableName);
+        String selectSQL =
+            "SELECT Id, AccountHolder, Balance, Currency, Type\n" +
+            "FROM Accounts";
         try (Statement statement = connection.createStatement()) {
             try (ResultSet result = statement.executeQuery(selectSQL)) {
                 List<Account> accounts = new ArrayList<>();
@@ -78,11 +61,10 @@ class Accounts implements AccountsDAO {
 
     @Override
     public List<Account> selectByAccountHolder(Connection connection, int accountHolderId) throws SQLException {
-        String selectSQL = String.format(
-                "SELECT Id, AccountHolder, Balance, Currency, Type\n" +
-                        "FROM %1$s\n" +
-                        "WHERE AccountHolder = ?",
-                TableName);
+        String selectSQL =
+            "SELECT Id, AccountHolder, Balance, Currency, Type\n" +
+            "FROM Accounts\n" +
+            "WHERE AccountHolder = ?";
         try (PreparedStatement preparedStatement = MySQLDatabase.prepareStatement(connection, selectSQL, (ps) -> ps.setInt(1, accountHolderId))) {
             try (ResultSet result = preparedStatement.executeQuery()) {
                 List<Account> accounts = new ArrayList<>();
@@ -97,11 +79,10 @@ class Accounts implements AccountsDAO {
 
     @Override
     public List<Account> selectWithMinimalBalance(Connection connection, BigDecimal minimumBalance) throws SQLException {
-        String selectSQL = String.format(
-                "SELECT Id, AccountHolder, Balance, Currency, Type\n" +
-                        "FROM %1$s\n" +
-                        "WHERE Balance >= ?",
-                TableName);
+        String selectSQL =
+            "SELECT Id, AccountHolder, Balance, Currency, Type\n" +
+            "FROM %Accounts\n" +
+            "WHERE Balance >= ?";
         try (PreparedStatement preparedStatement = MySQLDatabase.prepareStatement(connection, selectSQL, (ps) -> ps.setBigDecimal(1, minimumBalance))) {
             try (ResultSet result = preparedStatement.executeQuery()) {
                 List<Account> accounts = new ArrayList<>();
@@ -116,11 +97,10 @@ class Accounts implements AccountsDAO {
 
     @Override
     public List<Account> selectWithMaximalBalance(Connection connection, BigDecimal maximumBalance) throws SQLException {
-        String selectSQL = String.format(
-                "SELECT Id, AccountHolder, Balance, Currency, Type\n" +
-                        "FROM %1$s\n" +
-                        "WHERE Balance <= ?",
-                TableName);
+        String selectSQL =
+            "SELECT Id, AccountHolder, Balance, Currency, Type\n" +
+            "FROM Accounts\n" +
+            "WHERE Balance <= ?";
         try (PreparedStatement preparedStatement = MySQLDatabase.prepareStatement(connection, selectSQL, (ps) -> ps.setBigDecimal(1, maximumBalance))) {
             try (ResultSet result = preparedStatement.executeQuery()) {
                 List<Account> accounts = new ArrayList<>();
@@ -145,10 +125,9 @@ class Accounts implements AccountsDAO {
 
     @Override
     public int insert(Connection connection, Account item) throws SQLException {
-        String insertSQL = String.format(
-                "INSERT INTO %1$s (AccountHolder, Balance, Currency, Type)\n" +
-                        "VALUES (?, ?, ?, ?);",
-                TableName);
+        String insertSQL =
+            "INSERT INTO Accounts (AccountHolder, Balance, Currency, Type)\n" +
+            "VALUES (?, ?, ?, ?);";
         try (PreparedStatement preparedStatement = MySQLDatabase.prepareStatement(
                 connection, insertSQL, Statement.RETURN_GENERATED_KEYS, (ps) -> write(ps, item))) {
             preparedStatement.executeUpdate();
@@ -162,11 +141,10 @@ class Accounts implements AccountsDAO {
 
     @Override
     public boolean update(Connection connection, Account item) throws SQLException {
-        String updateSQL = String.format(
-                "UPDATE %1$s\n" +
-                        "SET AccountHolder = ?, Balance = ?, Currency = ?, Type = ?\n" +
-                        "WHERE Id = ?",
-                TableName);
+        String updateSQL =
+            "UPDATE Accounts\n" +
+            "SET AccountHolder = ?, Balance = ?, Currency = ?, Type = ?\n" +
+            "WHERE Id = ?";
         try (PreparedStatement preparedStatement = MySQLDatabase.prepareStatement(connection, updateSQL, (ps) -> {
             write(ps, item);
             ps.setInt(5, item.getId());
@@ -184,10 +162,9 @@ class Accounts implements AccountsDAO {
 
     @Override
     public boolean delete(Connection connection, int id) throws SQLException {
-        String deleteSQL = String.format(
-                "DELETE FROM %1$s\n" +
-                        "WHERE Id = ?",
-                TableName);
+        String deleteSQL =
+            "DELETE FROM Accounts\n" +
+            "WHERE Id = ?";
         try (PreparedStatement preparedStatement = MySQLDatabase.prepareStatement(connection, deleteSQL, (ps) -> ps.setInt(1, id))) {
             return preparedStatement.execute();
         }

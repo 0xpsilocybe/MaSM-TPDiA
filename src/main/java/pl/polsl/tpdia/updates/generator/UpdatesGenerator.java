@@ -21,7 +21,7 @@ public abstract class UpdatesGenerator<TModel extends Model> extends WorkerHelpe
     public UpdatesGenerator(
             MasmUpdateWorker<TModel> masmUpdateWorker,
             List<Integer> modelIds) {
-
+        super("Updates generator");
         this.masmUpdateWorker = masmUpdateWorker;
         this.modelIds = modelIds;
         this.secureRandom = new SecureRandom();
