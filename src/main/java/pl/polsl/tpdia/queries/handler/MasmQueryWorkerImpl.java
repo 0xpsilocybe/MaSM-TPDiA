@@ -58,11 +58,10 @@ public abstract class MasmQueryWorkerImpl<TModel extends Model, TDao extends Tab
 
         List<MasmUpdateDescriptor<TModel>> updateDescriptors = masmUpdateWorker.getMasmUpdateDescriptors(queryDescriptor.getTimestamp());
 
-        for (MasmUpdateDescriptor<TModel> updateDescriptor : updateDescriptors) {
-            try {
-        List<MasmUpdateDescriptor<TModel>> updateDescriptors = masmUpdateWorker.getMasmUpdateDescriptors(queryDescriptor.getTimestamp());
         try (Connection connection = MySQLDatabase.getConnection()) {
+
             connection.setAutoCommit(false);
+
             for (MasmUpdateDescriptor<TModel> updateDescriptor : updateDescriptors) {
                 switch (updateDescriptor.getUpdateType()) {
                     case INSERT: {
@@ -87,6 +86,7 @@ public abstract class MasmQueryWorkerImpl<TModel extends Model, TDao extends Tab
                 }
             }
             connection.commit();
+
         } catch (SQLException e) {
             e.printStackTrace();
             logger.error(e);
@@ -108,9 +108,8 @@ public abstract class MasmQueryWorkerImpl<TModel extends Model, TDao extends Tab
             e.printStackTrace();
         }
 
-            logger.debug(listOfResults != null ?
-                    String.format("LIST OF RESULTS SIZE: %1$d", listOfResults.size()) :
-                    "EMPTY LIST OF RESULTS");
-        }
+        logger.debug(listOfResults != null
+                ? String.format("LIST OF RESULTS SIZE: %1$d", listOfResults.size())
+                : "EMPTY LIST OF RESULTS");
     }
 }

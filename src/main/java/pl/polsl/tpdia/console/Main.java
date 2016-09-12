@@ -103,8 +103,11 @@ public class Main {
         List<Integer> ids = new ArrayList<>();
         AccountsDAO dao = database.getAccounts();
         Generator<Account> generator = new AccountGenerator(random);
+
         try (Connection connection = MySQLDatabase.getConnection()) {
+
             connection.setAutoCommit(false);
+
             for(int accountHolderId: accountHoldersIds) {
                 int accountsCount = random.nextInt(MAX_ACCOUNTS_PER_HOLDER_COUNT - MIN_ACCOUNTS_PER_HOLDER_COUNT) +
                         MIN_ACCOUNTS_PER_HOLDER_COUNT;
@@ -116,6 +119,7 @@ public class Main {
                     connection.commit();
                 }
             }
+
             return ids;
         }
     }
@@ -125,8 +129,11 @@ public class Main {
         List<Integer> ids = new ArrayList<>();
         TransactionsDAO dao = database.getTransactions();
         Generator<Transaction> generator = new TransactionGenerator(random);
+
         try (Connection connection = MySQLDatabase.getConnection()) {
+
             connection.setAutoCommit(false);
+
             for(int accountFromId: accountsIds) {
                 int transactionsCount = random.nextInt(MAX_TRANSACTIONS_PER_ACCOUNT_COUNT - MIN_TRANSACTIONS_PER_ACCOUNT_COUNT) +
                         MIN_TRANSACTIONS_PER_ACCOUNT_COUNT;
