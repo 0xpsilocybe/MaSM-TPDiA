@@ -145,9 +145,6 @@ public class MySQLDatabase {
             transactions.create(connection);
             accountHolders.create(connection);
             connection.commit();
-            //accounts.createForeignKey(connection);
-            //transactions.createForeignKey(connection);
-            //connection.commit();
             return true;
         } catch (SQLException e) {
             e.printStackTrace();

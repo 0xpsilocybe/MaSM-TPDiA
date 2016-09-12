@@ -16,7 +16,7 @@ public class TransactionMasmQueryWorkerImpl extends MasmQueryWorkerImpl<Transact
             MasmUpdateWorker<Transaction> masmUpdateWorker,
             MySQLDatabase database) throws SQLException {
 
-        super(updatesGenerator, masmUpdateWorker, database);
+        super(updatesGenerator, masmUpdateWorker);
 
         this.modelDAO = database.getTransactions();
     }
